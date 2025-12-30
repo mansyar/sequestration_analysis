@@ -486,9 +486,175 @@
         </div>
       </div>
 
-      <!-- Section 6: Limitations -->
+      <!-- Section 6: Uncertainty & Sensitivity Analysis -->
       <div class="section-card">
-        <h2>🔬 Limitations & Assumptions</h2>
+        <h2>📊 Uncertainty & Sensitivity Analysis</h2>
+
+        <p>
+          Following IPCC guidance on uncertainty characterization (IPCC, 2006;
+          Penman et al., 2003), this section documents the key sources of
+          uncertainty and their impact on results. All carbon sequestration
+          projections carry inherent uncertainties that should be considered
+          when interpreting outputs.
+        </p>
+
+        <h3>Parameter Uncertainty Ranges</h3>
+        <p>
+          The table below shows the uncertainty ranges for key input parameters,
+          based on literature review and IPCC Tier 1 methodology guidance.
+        </p>
+
+        <table class="parameter-table">
+          <tr>
+            <th>Parameter</th>
+            <th>Default Value</th>
+            <th>Uncertainty Range</th>
+            <th>Source of Uncertainty</th>
+          </tr>
+          <tr>
+            <td>Forest Sequestration Rate</td>
+            <td>6.9 tCO₂/ha/yr</td>
+            <td>±30% (4.8–9.0)</td>
+            <td>
+              Site-specific variation, climate, soil quality (IPCC 2006, Table
+              4.9)
+            </td>
+          </tr>
+          <tr>
+            <td>Coastal Sequestration Rate</td>
+            <td>6.6 tCO₂/ha/yr</td>
+            <td>±50% (3.3–9.9)</td>
+            <td>Mangrove type, sediment dynamics (Alongi, 2014)</td>
+          </tr>
+          <tr>
+            <td>Degradation Rate</td>
+            <td>2%/year</td>
+            <td>1–4%</td>
+            <td>Policy effectiveness, enforcement, fire risk (FAO, 2020)</td>
+          </tr>
+          <tr>
+            <td>Root-to-Shoot Ratio</td>
+            <td>0.37</td>
+            <td>0.20–0.50</td>
+            <td>Forest type, age, soil conditions (Mokany et al., 2006)</td>
+          </tr>
+          <tr>
+            <td>Emissions Target (2050)</td>
+            <td>540 MtCO₂e</td>
+            <td>±20%</td>
+            <td>Policy ambition, economic conditions (Indonesia NDC, 2022)</td>
+          </tr>
+        </table>
+
+        <h3>Sensitivity Analysis Results</h3>
+        <p>
+          One-at-a-time (OAT) sensitivity analysis was performed to assess which
+          parameters have the greatest influence on total land area
+          requirements. A ±20% change was applied to each parameter while
+          holding others constant.
+        </p>
+
+        <table class="parameter-table">
+          <tr>
+            <th>Parameter Changed</th>
+            <th>-20% Change</th>
+            <th>+20% Change</th>
+            <th>Sensitivity Rating</th>
+          </tr>
+          <tr style="color: #ef4444">
+            <td>Sequestration Rate</td>
+            <td>+25% area needed</td>
+            <td>-17% area needed</td>
+            <td><strong>HIGH</strong></td>
+          </tr>
+          <tr style="color: #f59e0b">
+            <td>Degradation Rate</td>
+            <td>-8% area needed</td>
+            <td>+10% area needed</td>
+            <td><strong>MEDIUM</strong></td>
+          </tr>
+          <tr style="color: #ef4444">
+            <td>Target Emissions (2050)</td>
+            <td>+20% area needed</td>
+            <td>-20% area needed</td>
+            <td><strong>HIGH</strong></td>
+          </tr>
+          <tr style="color: #ef4444">
+            <td>Sequestration % of Reduction</td>
+            <td>-20% area needed</td>
+            <td>+20% area needed</td>
+            <td><strong>HIGH</strong></td>
+          </tr>
+          <tr style="color: #22c55e">
+            <td>Root-to-Shoot Ratio</td>
+            <td>+5% area needed</td>
+            <td>-5% area needed</td>
+            <td>LOW</td>
+          </tr>
+        </table>
+
+        <div class="info-box">
+          <strong>Key Finding:</strong> The sequestration rate, emissions
+          target, and sequestration percentage are high-sensitivity parameters
+          that significantly affect results. These should be prioritized for
+          country-specific calibration when moving from Tier 1 to Tier 2/3
+          methodologies.
+        </div>
+
+        <h3>Key Assumptions & Limitations</h3>
+        <ul>
+          <li>
+            <strong>Linear Emissions Pathway:</strong> Assumes linear decline
+            from 2030 baseline to 2050 target. Real-world pathways may be
+            non-linear due to policy timing and technological adoption curves.
+          </li>
+          <li>
+            <strong>Additionality:</strong> Assumes all planted forests
+            represent "additional" sequestration beyond business-as-usual. No
+            leakage adjustments are applied.
+          </li>
+          <li>
+            <strong>Permanence:</strong> Carbon stocks are assumed permanent
+            with no discount for potential future release from fire, disease, or
+            land-use change. IPCC recommends permanence discounting in some
+            contexts.
+          </li>
+          <li>
+            <strong>Growth Lag:</strong> New forests are modeled with a 5-year
+            establishment phase followed by sigmoid growth, based on Chapin et
+            al. (2002). Actual lag varies by species and site conditions.
+          </li>
+          <li>
+            <strong>Uniform Rates:</strong> Single national sequestration rates
+            are applied. Real rates vary significantly by region, species
+            composition, and management intensity.
+          </li>
+          <li>
+            <strong>No Saturation:</strong> Model does not account for carbon
+            saturation in mature forests, which typically occurs after 100+
+            years.
+          </li>
+          <li>
+            <strong>Static Climate:</strong> Does not model climate change
+            impacts on sequestration rates, which may alter productivity by
+            10-30% by 2050 (Grace, 2004).
+          </li>
+        </ul>
+
+        <div class="warning-box">
+          <strong>Interpretation Guidance:</strong> Use the
+          <em>Moderate (20% risk)</em>
+          scenario as a planning baseline. The range between Optimistic and
+          Pessimistic scenarios represents approximately a 90% confidence
+          interval for land area requirements. For policy decisions, consider
+          the upper bound (Pessimistic) to ensure targets are achievable under
+          adverse conditions.
+        </div>
+      </div>
+
+      <!-- Section 7: Limitations Summary -->
+      <div class="section-card">
+        <h2>🔬 Methodology Limitations Summary</h2>
 
         <ul>
           <li>

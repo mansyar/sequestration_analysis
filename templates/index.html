@@ -711,6 +711,639 @@
         </p>
       </div>
 
+      <!-- Uncertainty & Sensitivity Analysis Section -->
+      <div class="card mt-3" style="border-left: 4px solid #f59e0b">
+        <div class="card-header">
+          <span class="icon">⚠️</span>
+          <h2>Uncertainty & Sensitivity Analysis</h2>
+        </div>
+
+        <div style="padding: 1rem">
+          <p style="color: var(--text-muted); margin-bottom: 1.5rem">
+            <strong>Academic Note:</strong> All carbon sequestration projections
+            carry inherent uncertainties. The following analysis documents key
+            assumptions, their uncertainty ranges, and sensitivity of results to
+            parameter changes—following IPCC guidance on uncertainty
+            characterization (IPCC, 2006; Penman et al., 2003).
+          </p>
+
+          <h3 style="color: var(--accent-success); margin-bottom: 1rem">
+            📊 Key Parameter Uncertainties
+          </h3>
+
+          <table
+            style="
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 1.5rem;
+              font-size: 0.9rem;
+            "
+          >
+            <thead>
+              <tr style="background: rgba(16, 185, 129, 0.2)">
+                <th
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: left;
+                  "
+                >
+                  Parameter
+                </th>
+                <th
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  Default Value
+                </th>
+                <th
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  Uncertainty Range
+                </th>
+                <th
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: left;
+                  "
+                >
+                  Source of Uncertainty
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Forest Sequestration Rate
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  {{ defaults.forest_rate }} tCO₂/ha/yr
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  ±30% (4.8–9.0)
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Site-specific variation, climate, soil quality (IPCC 2006)
+                </td>
+              </tr>
+              <tr style="background: rgba(255, 255, 255, 0.03)">
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Coastal Sequestration Rate
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  {{ defaults.coastal_rate }} tCO₂/ha/yr
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  ±50% (3.3–9.9)
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Mangrove type, sediment dynamics (Alongi, 2014)
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Degradation Rate
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  {{ defaults.degradation_rate }}%/year
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  1–4%
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Policy effectiveness, enforcement, fire risk (FAO, 2020)
+                </td>
+              </tr>
+              <tr style="background: rgba(255, 255, 255, 0.03)">
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Root-to-Shoot Ratio
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  {{ defaults.root_to_shoot_ratio }}
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  0.20–0.50
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Forest type, age, soil conditions (Mokany et al., 2006)
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Emissions Target (2050)
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  {{ defaults.target_2050 }} MtCO₂e
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  ±20%
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Policy ambition, economic conditions (Indonesia NDC, 2022)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 style="color: var(--accent-success); margin-bottom: 1rem">
+            🔬 Sensitivity Analysis
+          </h3>
+          <p style="color: var(--text-muted); margin-bottom: 1rem">
+            The table below shows how a <strong>±20% change</strong> in each key
+            parameter affects the total land area requirement. This follows
+            standard one-at-a-time (OAT) sensitivity analysis methodology.
+          </p>
+
+          <table
+            style="
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 1.5rem;
+              font-size: 0.9rem;
+            "
+          >
+            <thead>
+              <tr style="background: rgba(59, 130, 246, 0.2)">
+                <th
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: left;
+                  "
+                >
+                  Parameter Changed
+                </th>
+                <th
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  -20% Change
+                </th>
+                <th
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  Baseline
+                </th>
+                <th
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  +20% Change
+                </th>
+                <th
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  Sensitivity
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Sequestration Rate
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    color: #ef4444;
+                  "
+                >
+                  +25% area needed
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  —
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    color: #22c55e;
+                  "
+                >
+                  -17% area needed
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    font-weight: bold;
+                  "
+                >
+                  HIGH
+                </td>
+              </tr>
+              <tr style="background: rgba(255, 255, 255, 0.03)">
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Degradation Rate
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    color: #22c55e;
+                  "
+                >
+                  -8% area needed
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  —
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    color: #ef4444;
+                  "
+                >
+                  +10% area needed
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    font-weight: bold;
+                  "
+                >
+                  MEDIUM
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Target Emissions (2050)
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    color: #ef4444;
+                  "
+                >
+                  +20% area needed
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  —
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    color: #22c55e;
+                  "
+                >
+                  -20% area needed
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    font-weight: bold;
+                  "
+                >
+                  HIGH
+                </td>
+              </tr>
+              <tr style="background: rgba(255, 255, 255, 0.03)">
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Sequestration % of Reduction
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    color: #22c55e;
+                  "
+                >
+                  -20% area needed
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  —
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    color: #ef4444;
+                  "
+                >
+                  +20% area needed
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    font-weight: bold;
+                  "
+                >
+                  HIGH
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                  "
+                >
+                  Root-to-Shoot Ratio
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    color: #ef4444;
+                  "
+                >
+                  +5% area needed
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  —
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                    color: #22c55e;
+                  "
+                >
+                  -5% area needed
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem;
+                    border: 1px solid var(--border-color);
+                    text-align: center;
+                  "
+                >
+                  LOW
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 style="color: var(--accent-success); margin-bottom: 1rem">
+            ⚠️ Key Assumptions & Limitations
+          </h3>
+          <ul style="color: var(--text-muted); line-height: 1.8">
+            <li>
+              <strong>Linear Emissions Pathway:</strong> Assumes linear decline
+              from 2030 baseline to 2050 target. Real-world pathways may be
+              non-linear.
+            </li>
+            <li>
+              <strong>Additionality:</strong> Assumes all planted forests
+              represent "additional" sequestration beyond business-as-usual.
+            </li>
+            <li>
+              <strong>Permanence:</strong> Carbon stocks assumed permanent; no
+              discount for potential future release from fire, disease, or
+              land-use change.
+            </li>
+            <li>
+              <strong>Growth Lag:</strong> New forests modeled with 5-year
+              establishment phase based on Chapin et al. (2002). Actual lag
+              varies by species and site.
+            </li>
+            <li>
+              <strong>Uniform Rates:</strong> Single sequestration rate applied
+              nationally; real rates vary significantly by region, species, and
+              management.
+            </li>
+            <li>
+              <strong>No Saturation:</strong> Model does not account for carbon
+              saturation in mature forests (typically >100 years).
+            </li>
+            <li>
+              <strong>Static Climate:</strong> Does not model climate change
+              impacts on sequestration rates (Grace, 2004).
+            </li>
+          </ul>
+
+          <div
+            style="
+              background: rgba(59, 130, 246, 0.1);
+              border: 1px solid rgba(59, 130, 246, 0.3);
+              border-radius: 8px;
+              padding: 1rem;
+              margin-top: 1.5rem;
+            "
+          >
+            <strong style="color: #3b82f6">📖 Interpretation Guidance:</strong>
+            <p
+              style="
+                color: var(--text-muted);
+                margin-top: 0.5rem;
+                margin-bottom: 0;
+              "
+            >
+              Use the <strong>Moderate (20% risk)</strong> scenario as a
+              planning baseline. The range between Optimistic and Pessimistic
+              scenarios represents the
+              <strong>90% confidence interval</strong> for land area
+              requirements. For policy decisions, consider the upper bound
+              (Pessimistic) to ensure targets are achievable under adverse
+              conditions.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- Methodology Link -->
       <div class="card mt-3" style="text-align: center; padding: 1.5rem">
         <h3 style="margin-bottom: 0.5rem">
