@@ -20,16 +20,21 @@ from typing import Dict, List
 # IPCC 2006 Tier 1 Sequestration Rates (tCO2/ha/year)
 # =============================================================================
 
-# Above-ground biomass only (IPCC 2006 Vol.4 Table 4.9, 4.12)
-FOREST_SEQUESTRATION_RATE = 11.0  # Tropical rainforest average
-COASTAL_SEQUESTRATION_RATE = 13.0  # Mangrove/coastal wetlands
+# Strict IPCC 2006 defaults - Above-ground biomass only
+# Calculation: Biomass Growth (t dm/ha/yr) × Carbon Fraction (0.47) × CO2/C ratio (44/12)
+# Forest: 4.0 × 0.47 × 3.67 = 6.89 tCO2/ha/yr (IPCC 2006 Vol.4 Table 4.9)
+# Coastal: 4.8 × 0.47 × 3.67 = 8.28 tCO2/ha/yr (IPCC Wetlands Supplement 2014)
+# Adjusted to Alongi (2014) global mangrove average: 179.6 g C/m²/yr = 6.59 tCO2/ha/yr
+FOREST_SEQUESTRATION_RATE = 6.9   # Tropical rainforest (IPCC Table 4.9)
+COASTAL_SEQUESTRATION_RATE = 6.6  # Mangrove (Alongi 2014; DOI: 10.1146/annurev-marine-010213-135020)
 
-# Root-to-shoot ratio for below-ground biomass (IPCC Table 4.4)
+# Root-to-shoot ratio for below-ground biomass (IPCC 2006 Table 4.4)
+# Mokany et al. (2006) DOI: 10.1111/j.1365-2486.2005.001043.x
 ROOT_TO_SHOOT_RATIO = 0.37  # Tropical moist forests
 
-# With below-ground biomass included
-FOREST_RATE_FULL_BIOMASS = FOREST_SEQUESTRATION_RATE * (1 + ROOT_TO_SHOOT_RATIO)  # ~15.1
-COASTAL_RATE_FULL_BIOMASS = COASTAL_SEQUESTRATION_RATE * (1 + ROOT_TO_SHOOT_RATIO)  # ~17.8
+# With below-ground biomass included (above-ground × (1 + root-to-shoot))
+FOREST_RATE_FULL_BIOMASS = FOREST_SEQUESTRATION_RATE * (1 + ROOT_TO_SHOOT_RATIO)  # ~9.45
+COASTAL_RATE_FULL_BIOMASS = COASTAL_SEQUESTRATION_RATE * (1 + ROOT_TO_SHOOT_RATIO)  # ~9.04
 
 # =============================================================================
 # Indonesia Baseline Data
