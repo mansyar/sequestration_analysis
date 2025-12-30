@@ -12,6 +12,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from typing import Annotated
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from calculator.models import CalculatorInput, ScenarioType
 from calculator.formulas import calculate_sequestration, compare_scenarios, generate_trajectory
@@ -37,11 +38,18 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Add middleware to handle HTTPS behind reverse proxy (Coolify/Traefik)
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts=["*"])
 
-# Configure templates
-templates = Jinja2Templates(directory="templates")
+# Get the directory where main.py is located (works in Docker)
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Mount static files with absolute path
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+
+# Configure templates with absolute path
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 
 @app.get("/", response_class=HTMLResponse)

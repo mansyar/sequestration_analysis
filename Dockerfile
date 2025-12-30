@@ -48,5 +48,5 @@ LABEL org.opencontainers.image.source="https://github.com/ansyar/sequestration-c
 LABEL org.opencontainers.image.description="Indonesia Carbon Sequestration Calculator"
 LABEL org.opencontainers.image.licenses="MIT"
 
-# Run with uvicorn (non-root, no shell)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run with uvicorn (non-root, with proxy headers for HTTPS)
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]
