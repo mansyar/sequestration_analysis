@@ -4,6 +4,7 @@ Core calculation formulas for Carbon Sequestration Calculator
 Based on IPCC 2006 Guidelines Volume 4 (AFOLU) Tier 1 methodology
 """
 
+import math
 from typing import List
 from .models import (
     CalculatorInput, 
@@ -13,7 +14,9 @@ from .models import (
     ScenarioComparisonResult,
     ScenarioType,
     RiskScenarioData,
-    MultiRiskChartData
+    MultiRiskChartData,
+    RoadmapPoint,
+    RoadmapData
 )
 from .constants import (
     SCENARIOS,
@@ -315,10 +318,11 @@ def generate_trajectory(input_params: CalculatorInput, result: "CalculatorResult
     )
 
 
+# IPCC-style traffic light colors for risk scenarios
 RISK_SCENARIOS = [
-    {"name": "Optimistic", "risk_factor": 0, "color": "#22c55e"},  # Green
-    {"name": "Moderate", "risk_factor": 20, "color": "#f59e0b"},   # Amber
-    {"name": "Pessimistic", "risk_factor": 40, "color": "#ef4444"}  # Red
+    {"name": "Optimistic", "risk_factor": 0, "color": "#43A047"},   # IPCC Green
+    {"name": "Moderate", "risk_factor": 20, "color": "#FB8C00"},    # IPCC Orange/Amber
+    {"name": "Pessimistic", "risk_factor": 40, "color": "#E53935"}  # IPCC Red
 ]
 
 
@@ -378,8 +382,171 @@ def generate_multi_risk_data(
             emissions_trajectory=emissions_trajectory
         ))
     
+    # Calculate result for moderate scenario (default 20% risk) for roadmap
+    moderate_input = base_input.model_copy()
+    moderate_input.risk_factor = 20  # Moderate risk
+    moderate_result = calculate_sequestration(moderate_input)
+    roadmap_data = calculate_net_zero_roadmap(base_input, moderate_result)
+
     return MultiRiskChartData(
         scenarios=scenarios_data,
+        roadmap=roadmap_data,
         current_forest=base_input.forest_area_available,
         current_coastal=base_input.coastal_area_available
     )
+
+
+def cohort_maturity_factor(years_since_planting: int) -> float:
+    """
+    Returns fraction of full sequestration capacity for a forest cohort.
+    
+    Biological growth phases:
+    - Years 0-5: 0% (establishment phase - roots developing)
+    - Years 5-15: Sigmoid growth to 80% (rapid growth phase)
+    - Years 15+: 80-100% (mature plateau)
+    
+    Reference: Chapin et al. (2002), Baldocchi (2008)
+    """
+    if years_since_planting < 5:
+        return 0.0
+    elif years_since_planting < 15:
+        t = years_since_planting - 5
+        # Sigmoid growth from 0 to 0.8 over 10 years
+        return 0.8 * (1 / (1 + math.exp(-0.5 * (t - 5))))
+    else:
+        # Gradual increase from 80% to 100% over additional years
+        return min(1.0, 0.8 + 0.02 * (years_since_planting - 15))
+
+
+def calculate_net_zero_roadmap(input_params: CalculatorInput, result_moderate: CalculatorResult) -> RoadmapData:
+    """
+    Calculate the 2023-2050 National Net Zero Roadmap using cohort-based planting model.
+    
+    Key improvements:
+    1. Emissions: Uses dynamic parameters (emissions_2030, target_2050)
+    2. Existing Sink: Exponential decay using degradation_rate
+    3. New Sink: Cohort-based planting (2025-2045) with 5-year biological growth lag
+    4. Other Mitigation: 40% of reduction from non-sequestration sources
+    
+    All charts share these dynamic parameters from input_params.
+    """
+    from .constants import (
+        DEFAULT_EMISSIONS_2023,
+        INDONESIA_FOREST_AREA,
+        INDONESIA_COASTAL_AREA
+    )
+
+    # Timeline: 2023 to target_year (default 2050)
+    years = list(range(2023, input_params.target_year + 1))
+    
+    # === Existing Sink Capacity (2023 baseline) ===
+    forest_capacity_2023 = INDONESIA_FOREST_AREA * input_params.forest_rate
+    coastal_capacity_2023 = INDONESIA_COASTAL_AREA * input_params.coastal_rate
+    
+    if input_params.include_below_ground:
+        forest_capacity_2023 *= (1 + input_params.root_to_shoot_ratio)
+        coastal_capacity_2023 *= (1 + input_params.root_to_shoot_ratio)
+        
+    total_sink_2023_mt = (forest_capacity_2023 + coastal_capacity_2023) / 1_000_000
+    
+    # === New Sink: Cohort-based planting model ===
+    # Total area to plant over 20 years (2025-2045)
+    total_area_needed = result_moderate.total_area_needed
+    planting_start_year = 2025
+    planting_end_year = 2045
+    planting_years = planting_end_year - planting_start_year
+    annual_planting_area = total_area_needed / planting_years if planting_years > 0 else 0
+    
+    # Weighted sequestration rate for new areas
+    forest_pct = input_params.forest_percent / 100
+    coastal_pct = 1 - forest_pct
+    weighted_rate = (forest_pct * input_params.forest_rate) + (coastal_pct * input_params.coastal_rate)
+    
+    if input_params.include_below_ground:
+        weighted_rate *= (1 + input_params.root_to_shoot_ratio)
+    
+    # === Sequestration vs Other Mitigation split ===
+    sequestration_pct = input_params.sequestration_percent / 100
+    other_mitigation_pct = 1 - sequestration_pct
+    total_reduction = input_params.emissions_2030 - input_params.target_2050
+
+    points = []
+    
+    for year in years:
+        # 1. Emissions Pathway (linear interpolation)
+        if year <= 2030:
+            progress = (year - 2023) / 7
+            emissions = DEFAULT_EMISSIONS_2023 + (progress * (input_params.emissions_2030 - DEFAULT_EMISSIONS_2023))
+        else:
+            progress = (year - 2030) / (input_params.target_year - 2030)
+            emissions = input_params.emissions_2030 - (progress * (input_params.emissions_2030 - input_params.target_2050))
+            
+        # 2. Existing Sink Decay (Exponential)
+        t_decay = year - 2023
+        decay_factor = (1 - (input_params.degradation_rate / 100)) ** t_decay
+        existing_sink = -total_sink_2023_mt * decay_factor
+        
+        # 3. New Sink (Cohort-based: sum of all planted cohorts' contributions)
+        new_sink_capacity = 0.0
+        for plant_year in range(planting_start_year, min(year + 1, planting_end_year + 1)):
+            if plant_year <= year:
+                years_since_planting = year - plant_year
+                maturity = cohort_maturity_factor(years_since_planting)
+                # This cohort's contribution = area × rate × maturity
+                cohort_capacity = annual_planting_area * weighted_rate * maturity
+                new_sink_capacity += cohort_capacity
+        
+        new_sink = -new_sink_capacity / 1_000_000  # Convert to MtCO2e (negative = sink)
+        
+        # 4. Other Mitigation (40% of reduction, scaled by progress)
+        if year <= 2030:
+            other_mitigation = 0
+        else:
+            reduction_progress = (year - 2030) / (input_params.target_year - 2030)
+            other_mitigation = -(total_reduction * other_mitigation_pct * reduction_progress)
+        
+        # Net Balance = Emissions + Sinks + Other Mitigation
+        net_balance = emissions + existing_sink + new_sink + other_mitigation
+        
+        points.append(RoadmapPoint(
+            year=year,
+            emissions=emissions,
+            existing_sink=existing_sink,
+            new_sink=new_sink,
+            other_mitigation=other_mitigation,
+            net_balance=net_balance
+        ))
+
+    return RoadmapData(
+        points=points,
+        years=[p.year for p in points],
+        emissions=[p.emissions for p in points],
+        existing_sink=[p.existing_sink for p in points],
+        new_sink=[p.new_sink for p in points],
+        other_mitigation=[p.other_mitigation for p in points],
+        net_balance=[p.net_balance for p in points]
+    )
+
+
+def validate_net_zero_pathway(roadmap_data: RoadmapData, sequestration_percent: float = 60) -> tuple:
+    """
+    Validate that sequestration meets its target share (default 60%).
+    
+    Returns:
+        (is_valid, gap, expected_seq, actual_sinks)
+    """
+    final_emissions = roadmap_data.emissions[-1]
+    initial_emissions = roadmap_data.emissions[0]
+    final_existing = abs(roadmap_data.existing_sink[-1])
+    final_new = abs(roadmap_data.new_sink[-1])
+    final_sinks = final_existing + final_new
+    
+    # Expected sequestration contribution
+    total_reduction = initial_emissions - final_emissions
+    expected_seq = total_reduction * (sequestration_percent / 100)
+    
+    # Gap between expected and actual
+    gap = expected_seq - final_sinks
+    is_valid = abs(gap) < 50  # Within 50 MtCO2e tolerance
+    
+    return is_valid, gap, expected_seq, final_sinks

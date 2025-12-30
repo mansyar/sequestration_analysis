@@ -311,8 +311,13 @@ async function generatePdf() {
       yPos += 20;
     }
 
-    // --- PAGES 2-5: CHARTS (LANDSCAPE, ONE PER PAGE) ---
+    // --- PAGES 2-6: CHARTS (LANDSCAPE, ONE PER PAGE) ---
     const charts = [
+      {
+        id: "roadmapChart",
+        chartKey: "roadmap",
+        title: "National Net Zero Strategy Roadmap (2023-2050)",
+      },
       {
         id: "areaComparisonChart",
         chartKey: "area",

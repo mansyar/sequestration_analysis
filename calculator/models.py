@@ -224,8 +224,31 @@ class RiskScenarioData(BaseModel):
     emissions_trajectory: List[float]  # Remaining emissions per year
 
 
+
+class RoadmapPoint(BaseModel):
+    """Data point for a single year in the National Net Zero Roadmap"""
+    year: int
+    emissions: float  # MtCO2e
+    existing_sink: float  # MtCO2e (negative value)
+    new_sink: float  # MtCO2e (negative value)
+    other_mitigation: float  # MtCO2e (negative value - 40% non-sequestration)
+    net_balance: float  # MtCO2e
+
+
+class RoadmapData(BaseModel):
+    """Complete roadmap data for 2023-2050"""
+    points: List[RoadmapPoint]
+    years: List[int]
+    emissions: List[float]
+    existing_sink: List[float]
+    new_sink: List[float]
+    other_mitigation: List[float]
+    net_balance: List[float]
+
+
 class MultiRiskChartData(BaseModel):
     """Chart data for multiple risk scenarios"""
     scenarios: List[RiskScenarioData]
+    roadmap: RoadmapData
     current_forest: float
     current_coastal: float

@@ -414,6 +414,35 @@
 
           <!-- Right Column: Results -->
           <div>
+            <!-- National Roadmap Strategy (IPCC Style) -->
+            <div class="card mb-6">
+              <div class="card-header">
+                <span class="icon">📈</span>
+                <h2>National Net Zero Roadmap (2023-2050)</h2>
+              </div>
+              <div class="chart-container" style="height: 350px">
+                <canvas id="roadmapChart"></canvas>
+              </div>
+              <div
+                class="mt-4 p-4 bg-gray-50 border-l-4 border-emerald-500 text-sm"
+              >
+                <p>
+                  <strong>How to Read:</strong> This IPCC-style wedge chart
+                  shows Indonesia's path to net-zero.
+                  <strong>Grey area</strong> = gross emissions declining from
+                  1,200 MtCO₂e (2023) to 540 MtCO₂e (2050).
+                  <strong>Dark green</strong> = existing forest capacity
+                  (decaying at {{ defaults.degradation_rate }}%/year due to
+                  deforestation). <strong>Light green</strong> = new restoration
+                  using cohort-based planting with 5-year growth lag.
+                  <strong>Purple</strong> = other mitigation ({{ 100 -
+                  defaults.sequestration_percent }}% from energy, transport,
+                  industry). <strong>Blue line</strong> = net carbon balance
+                  (should approach zero by 2050).
+                </p>
+              </div>
+            </div>
+
             <!-- Summary Results -->
             <div class="card">
               <div class="card-header">
@@ -616,7 +645,10 @@
             <canvas id="areaComparisonChart"></canvas>
           </div>
           <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
-            Gray = Current area | 🟢 Optimistic | 🟡 Moderate | 🔴 Pessimistic
+            <strong>How to Read:</strong> Compares Indonesia's current
+            forest/coastal area (green/blue bars) against the additional area
+            needed under each risk scenario. Higher risk scenarios require more
+            restoration to offset potential sequestration failures.
           </p>
         </div>
 
@@ -633,8 +665,10 @@
             <canvas id="trajectoryChart"></canvas>
           </div>
           <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
-            Cumulative area growth by risk scenario: 🟢 Optimistic | 🟡 Moderate
-            | 🔴 Pessimistic
+            <strong>How to Read:</strong> Shows cumulative hectares of new
+            forest/coastal restoration needed annually to meet 2050 targets.
+            Lines diverge over time as risk buffers compound. 🟢 Optimistic (0%
+            risk) | 🟡 Moderate (20%) | 🔴 Pessimistic (40%).
           </p>
         </div>
       </div>
@@ -649,8 +683,11 @@
           <canvas id="scenarioChart"></canvas>
         </div>
         <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
-          🟢 Optimistic (0% risk) | 🟡 Moderate (20% risk) | 🔴 Pessimistic (40%
-          risk) — Stacked: Forest + Coastal
+          <strong>How to Read:</strong> Stacked bar chart showing total hectares
+          required per risk scenario. Dark bars = forest reforestation ({{
+          defaults.forest_percent }}% of target). Light bars = coastal/mangrove
+          restoration ({{ 100 - defaults.forest_percent }}%). Taller stacks =
+          greater land requirement under higher risk assumptions.
         </p>
       </div>
 
@@ -664,8 +701,13 @@
           <canvas id="emissionsChart"></canvas>
         </div>
         <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
-          Projected emissions decline from {{ defaults.start_year }} to {{
-          defaults.target_year }} with sequestration contribution
+          <strong>How to Read:</strong> Shows projected net emissions (MtCO₂e)
+          after sequestration contribution from {{ defaults.start_year }} to {{
+          defaults.target_year }}. Lines converge toward the 540 MtCO₂e target.
+          Gap between lines represents additional risk buffer. Sequestration
+          contributes {{ defaults.sequestration_percent }}% of reduction;
+          remaining {{ 100 - defaults.sequestration_percent }}% from other
+          mitigation.
         </p>
       </div>
 
@@ -705,38 +747,75 @@
       // Chart data from backend
       const chartData = {{ chart_data | tojson }};
       const multiRiskData = {{ multi_risk_data | tojson }};
-      // Color palette
+      // IPCC-inspired Color palette (professional, muted academic tones)
       const colors = {
-        forest: '#10b981',
-        forestLight: 'rgba(16, 185, 129, 0.3)',
-        coastal: '#3b82f6',
-        coastalLight: 'rgba(59, 130, 246, 0.3)',
-        warning: '#f59e0b',
-        danger: '#ef4444',
-        gradient1: '#10b981',
-        gradient2: '#3b82f6',
-        grid: 'rgba(255, 255, 255, 0.1)',
-        text: '#9ca3af'
+        // Ecosystem colors (IPCC style)
+        forest: '#2E7D32',           // Deep Forest Green
+        forestLight: 'rgba(46, 125, 50, 0.3)',
+        coastal: '#0277BD',          // Ocean Blue
+        coastalLight: 'rgba(2, 119, 189, 0.3)',
+
+        // Status colors
+        warning: '#F9A825',          // Amber
+        danger: '#C62828',           // Deep Red
+
+        // Grid and text
+        grid: 'rgba(255, 255, 255, 0.08)',
+        text: '#B0BEC5',             // Blue Grey
+
+        // Risk scenario colors (IPCC traffic light style)
+        optimistic: '#43A047',       // Green
+        moderate: '#FB8C00',         // Orange
+        pessimistic: '#E53935',      // Red
+
+        // Area type colors
+        current: '#546E7A',          // Blue Grey
+
+        // Roadmap wedge colors (IPCC style)
+        roadmap: {
+            emissions: 'rgba(84, 110, 122, 0.7)',     // Blue Grey
+            existing_sink: 'rgba(27, 94, 32, 0.8)',   // Dark Forest
+            new_sink: 'rgba(56, 142, 60, 0.8)',       // Medium Green
+            other_mitigation: 'rgba(94, 53, 177, 0.7)', // Deep Purple
+            net_path: '#1565C0'                       // Strong Blue
+        }
       };
 
       window.dashboardCharts = {};
 
-      // Common chart options
+      // Common chart options (IPCC-style professional appearance)
       const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            labels: { color: colors.text }
+            position: 'bottom',
+            labels: {
+              color: colors.text,
+              font: {
+                family: "'Inter', 'Segoe UI', sans-serif",
+                size: 11,
+                weight: '500'
+              },
+              padding: 15,
+              usePointStyle: true,
+              pointStyle: 'rectRounded'
+            }
           }
         },
         scales: {
           x: {
-            ticks: { color: colors.text },
+            ticks: {
+              color: colors.text,
+              font: { family: "'Inter', 'Segoe UI', sans-serif", size: 11 }
+            },
             grid: { color: colors.grid }
           },
           y: {
-            ticks: { color: colors.text },
+            ticks: {
+              color: colors.text,
+              font: { family: "'Inter', 'Segoe UI', sans-serif", size: 11 }
+            },
             grid: { color: colors.grid }
           }
         }
@@ -751,8 +830,8 @@
             {
               label: 'Current Area',
               data: [multiRiskData.current_forest, multiRiskData.current_coastal],
-              backgroundColor: ['rgba(107, 114, 128, 0.8)', 'rgba(107, 114, 128, 0.8)'],
-              borderColor: ['#6b7280', '#6b7280'],
+              backgroundColor: [colors.forestLight, colors.coastalLight],
+              borderColor: [colors.forest, colors.coastal],
               borderWidth: 2
             },
             ...multiRiskData.scenarios.map(s => ({
@@ -964,10 +1043,92 @@
               ...commonOptions.scales.y,
               title: {
                 display: true,
-                text: 'Emissions (MtCO₂e)',
+                text: 'Net Emissions (MtCO₂e)',
                 color: colors.text
               },
               min: 0
+            }
+          }
+        }
+      });
+
+      // 5. National Net Zero Roadmap (IPCC Styled)
+      window.dashboardCharts.roadmap = new Chart(document.getElementById('roadmapChart'), {
+        type: 'line',
+        data: {
+          labels: multiRiskData.roadmap.years,
+          datasets: [
+            {
+              label: 'Net Carbon Balance',
+              data: multiRiskData.roadmap.net_balance,
+              borderColor: colors.roadmap.net_path,
+              borderWidth: 4,
+              fill: false,
+              tension: 0.3,
+              pointRadius: 0,
+              order: 0
+            },
+            {
+                label: 'Gross Emissions',
+                data: multiRiskData.roadmap.emissions,
+                backgroundColor: colors.roadmap.emissions,
+                fill: true,
+                order: 1
+            },
+            {
+                label: 'Existing Sink Capacity (Decay)',
+                data: multiRiskData.roadmap.existing_sink,
+                backgroundColor: colors.roadmap.existing_sink,
+                fill: true,
+                order: 2
+            },
+            {
+                label: 'New Restoration Wedge',
+                data: multiRiskData.roadmap.new_sink,
+                backgroundColor: colors.roadmap.new_sink,
+                fill: true,
+                order: 3
+            },
+            {
+                label: 'Other Mitigation (' + (100 - {{ defaults.sequestration_percent }}) + '%)',
+                data: multiRiskData.roadmap.other_mitigation,
+                backgroundColor: colors.roadmap.other_mitigation,
+                fill: true,
+                borderDash: [5, 5],
+                order: 4
+            }
+          ]
+        },
+        options: {
+          ...commonOptions,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            ...commonOptions.plugins,
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + context.raw.toFixed(1) + ' MtCO₂e';
+                    }
+                }
+            },
+            title: {
+                display: false
+            }
+          },
+          scales: {
+            ...commonOptions.scales,
+            x: {
+              ...commonOptions.scales.x,
+              title: { display: true, text: 'Year', color: colors.text }
+            },
+            y: {
+              stacked: false, // Wedges are just area fills here
+              title: { display: true, text: 'CO₂e (Million Tonnes / Year)', color: colors.text },
+              ticks: { color: colors.text },
+              grid: { color: colors.grid }
             }
           }
         }

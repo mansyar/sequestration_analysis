@@ -40,8 +40,9 @@ INDONESIA_FOREST_AREA = 120_343_230  # Hutan daratan
 INDONESIA_COASTAL_AREA = 5_321_321   # Hutan perairan/coastal
 
 # Emission targets (MtCO2e)
-DEFAULT_EMISSIONS_2030 = 1244  # Baseline emissions
-DEFAULT_TARGET_2050 = 540      # Target emissions
+DEFAULT_EMISSIONS_2023 = 1200  # Baseline 2023 emissions
+DEFAULT_EMISSIONS_2030 = 1244  # Baseline emissions peak
+DEFAULT_TARGET_2050 = 540      # Target emissions by 2050
 
 # Policy parameters
 DEFAULT_SEQUESTRATION_PERCENT = 60  # 60% from sequestration
@@ -176,5 +177,33 @@ REFERENCES: List[Reference] = [
         journal="National Strategy Document",
         key_finding="Forestry sector targeting net carbon sink by 2030",
         url="https://www.menlhk.go.id/"
+    ),
+    Reference(
+        id="chapin2002",
+        authors="Chapin, F.S., Matson, P.A., and Mooney, H.A.",
+        year=2002,
+        title="Principles of Terrestrial Ecosystem Ecology",
+        journal="Springer",
+        key_finding="Fundamental principles of ecosystem carbon cycling and sequestration dynamics",
+        url="https://link.springer.com/book/10.1007/978-1-4419-9504-9"
+    ),
+    Reference(
+        id="baldocchi2008",
+        authors="Baldocchi, D.",
+        year=2008,
+        title="'Breathing' of the terrestrial biosphere: lessons learned from a global network of carbon dioxide flux measurement systems",
+        journal="Australian Journal of Botany",
+        key_finding="Global synthesis of CO2 flux measurements across various biomes",
+        doi="10.1071/BT08014",
+        url="https://www.publish.csiro.au/ajb/BT08014"
+    ),
+    Reference(
+        id="grace2006",
+        authors="Grace, J. and Zhang, R.",
+        year=2006,
+        title="Predicting the effect of climate change on global plant productivity and the carbon cycle",
+        journal="Plant Growth and Climate Change (Blackwell Publishing)",
+        key_finding="Modeling climate feedback loops on forest sequestration capacity",
+        url="https://onlinelibrary.wiley.com/doi/book/10.1002/9780470988695"
     )
 ]
