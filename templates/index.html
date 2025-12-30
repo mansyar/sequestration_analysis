@@ -15,6 +15,8 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -449,6 +451,14 @@
                   <div class="label">Years</div>
                 </div>
               </div>
+              <button
+                type="button"
+                id="generatePdfBtn"
+                class="btn btn-secondary"
+                style="width: 100%; margin-top: 1rem"
+              >
+                📄 &nbsp; Download Technical Report (PDF)
+              </button>
             </div>
 
             <!-- Forest Feasibility -->
@@ -709,6 +719,8 @@
         text: '#9ca3af'
       };
 
+      window.dashboardCharts = {};
+
       // Common chart options
       const commonOptions = {
         responsive: true,
@@ -731,7 +743,7 @@
       };
 
       // 1. Area Comparison Chart (Current vs Risk Scenarios)
-      new Chart(document.getElementById('areaComparisonChart'), {
+      window.dashboardCharts.area = new Chart(document.getElementById('areaComparisonChart'), {
         type: 'bar',
         data: {
           labels: ['Forest', 'Coastal'],
@@ -766,6 +778,12 @@
                   return context.dataset.label + ': ' + value.toLocaleString() + ' ha';
                 }
               }
+            },
+            title: {
+              display: true,
+              text: 'Current Area vs. Area Required by Risk Scenario',
+              color: colors.text,
+              font: { size: 14 }
             }
           },
           scales: {
@@ -783,7 +801,7 @@
       });
 
       // 2. Annual Trajectory Chart - Multi Risk Scenario Lines
-      new Chart(document.getElementById('trajectoryChart'), {
+      window.dashboardCharts.trajectory = new Chart(document.getElementById('trajectoryChart'), {
         type: 'line',
         data: {
           labels: multiRiskData.scenarios[0]?.years || chartData.trajectory.years,
@@ -840,7 +858,7 @@
       });
 
       // 3. Risk Scenario Stacked Bar Chart
-      new Chart(document.getElementById('scenarioChart'), {
+      window.dashboardCharts.scenario = new Chart(document.getElementById('scenarioChart'), {
         type: 'bar',
         data: {
           labels: multiRiskData.scenarios.map(s => s.name + ' (' + s.risk_factor + '%)'),
@@ -879,6 +897,12 @@
                   return ['─────────────', 'Total: ' + total.toFixed(2) + ' M ha'];
                 }
               }
+            },
+            title: {
+              display: true,
+              text: 'Total Hectares Required per Risk Scenario (Stacked)',
+              color: colors.text,
+              font: { size: 14 }
             }
           },
           scales: {
@@ -901,7 +925,7 @@
       });
 
       // 4. Emissions Trajectory Chart - Multi Risk
-      new Chart(document.getElementById('emissionsChart'), {
+      window.dashboardCharts.emissions = new Chart(document.getElementById('emissionsChart'), {
         type: 'line',
         data: {
           labels: multiRiskData.scenarios[0]?.years || chartData.trajectory.years,
@@ -926,6 +950,12 @@
                   return context.dataset.label + ': ' + Math.round(context.raw).toLocaleString() + ' MtCO₂e';
                 }
               }
+            },
+            title: {
+              display: true,
+              text: 'Projected Net Emissions Pathway (2030-2050)',
+              color: colors.text,
+              font: { size: 14 }
             }
           },
           scales: {
