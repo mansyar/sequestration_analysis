@@ -9,7 +9,7 @@ on:
   workflow_dispatch: # Allow manual trigger
 
 env:
-  IMAGE_NAME: carbon-sequestration-calculator
+  IMAGE_NAME: mansyar/sequestration-calculator
 
 jobs:
   build-and-push:
