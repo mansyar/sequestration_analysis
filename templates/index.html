@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carbon Sequestration Calculator | Indonesia 2050</title>
+    <meta
+      name="description"
+      content="Calculate required forest and coastal area to achieve Indonesia's 2050 carbon emission targets"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <h1>🌿 Carbon Sequestration Calculator</h1>
+        <p class="subtitle">
+          Indonesia's Path to Net Zero 2050 | IPCC 2006 Tier 1 Methodology
+        </p>
+      </header>
+
+      <!-- Navigation -->
+      <nav class="nav">
+        <a href="/" class="active">📊 Calculator</a>
+        <a href="/references">📚 References</a>
+      </nav>
+
+      <form method="POST" action="/calculate" id="calculatorForm">
+        <div class="grid grid-2">
+          <!-- Left Column: Inputs -->
+          <div>
+            <!-- Scenario Selection -->
+            <div class="card">
+              <div class="card-header">
+                <span class="icon">🎯</span>
+                <h2>Quick Scenarios</h2>
+              </div>
+              <div class="btn-group">
+                {% for key, scenario in scenario_presets.items() %}
+                <button
+                  type="button"
+                  class="scenario-btn"
+                  data-scenario="{{ key }}"
+                  data-forest="{{ scenario.forest_percent * 100 }}"
+                  data-below-ground="{{ 'true' if scenario.include_below_ground else 'false' }}"
+                  title="{{ scenario.description }}"
+                >
+                  {{ scenario.name }}
+                </button>
+                {% endfor %}
+              </div>
+              <input
+                type="hidden"
+                name="scenario"
+                id="scenarioInput"
+                value="custom"
+              />
+            </div>
+
+            <!-- Emission Targets -->
+            <div class="card">
+              <div class="card-header">
+                <span class="icon">🏭</span>
+                <h2>Emission Targets</h2>
+              </div>
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label for="emissions_2030">Baseline 2030 (MtCO₂e)</label>
+                  <input
+                    type="number"
+                    id="emissions_2030"
+                    name="emissions_2030"
+                    value="{{ defaults.emissions_2030 }}"
+                    step="1"
+                    min="0"
+                    max="5000"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="target_2050">Target 2050 (MtCO₂e)</label>
+                  <input
+                    type="number"
+                    id="target_2050"
+                    name="target_2050"
+                    value="{{ defaults.target_2050 }}"
+                    step="1"
+                    min="0"
+                    max="5000"
+                  />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="sequestration_percent">
+                  Sequestration Policy:
+                  <span class="range-value" id="seqPercentValue"
+                    >{{ defaults.sequestration_percent }}%</span
+                  >
+                </label>
+                <input
+                  type="range"
+                  id="sequestration_percent"
+                  name="sequestration_percent"
+                  value="{{ defaults.sequestration_percent }}"
+                  min="0"
+                  max="100"
+                  step="5"
+                />
+              </div>
+            </div>
+
+            <!-- Current Indonesia Forest Areas -->
+            <div class="card">
+              <div class="card-header">
+                <span class="icon">🌳</span>
+                <h2>Current Indonesia Forest Areas</h2>
+              </div>
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label for="forest_area_available">Land Forest (ha)</label>
+                  <input
+                    type="number"
+                    id="forest_area_available"
+                    name="forest_area_available"
+                    value="{{ defaults.forest_area_available }}"
+                    step="1000"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="coastal_area_available"
+                    >Coastal Forest (ha)</label
+                  >
+                  <input
+                    type="number"
+                    id="coastal_area_available"
+                    name="coastal_area_available"
+                    value="{{ defaults.coastal_area_available }}"
+                    step="1000"
+                  />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="forest_percent">
+                  Sequestration Allocation (Forest/Coastal):
+                  <span class="range-value" id="forestPercentValue"
+                    >{{ defaults.forest_percent|int }}% / {{ (100 -
+                    defaults.forest_percent)|int }}%</span
+                  >
+                </label>
+                <input
+                  type="range"
+                  id="forest_percent"
+                  name="forest_percent"
+                  value="{{ defaults.forest_percent }}"
+                  min="0"
+                  max="100"
+                  step="5"
+                />
+              </div>
+            </div>
+
+            <!-- Sequestration Rates -->
+            <div class="card">
+              <div class="card-header">
+                <span class="icon">📈</span>
+                <h2>IPCC Tier 1 Rates</h2>
+              </div>
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label for="forest_rate">Forest Rate (tCO₂/ha/yr)</label>
+                  <input
+                    type="number"
+                    id="forest_rate"
+                    name="forest_rate"
+                    value="{{ defaults.forest_rate }}"
+                    step="0.5"
+                    min="1"
+                    max="50"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="coastal_rate">Coastal Rate (tCO₂/ha/yr)</label>
+                  <input
+                    type="number"
+                    id="coastal_rate"
+                    name="coastal_rate"
+                    value="{{ defaults.coastal_rate }}"
+                    step="0.5"
+                    min="1"
+                    max="50"
+                  />
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="toggle-wrapper">
+                  <label class="toggle">
+                    <input
+                      type="checkbox"
+                      id="include_below_ground"
+                      name="include_below_ground"
+                      {%
+                      if
+                      defaults.include_below_ground
+                      %}checked{%
+                      endif
+                      %}
+                    />
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <label for="include_below_ground"
+                    >Include below-ground biomass (+37%)</label
+                  >
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="root_to_shoot_ratio">Root-to-Shoot Ratio</label>
+                <input
+                  type="number"
+                  id="root_to_shoot_ratio"
+                  name="root_to_shoot_ratio"
+                  value="{{ defaults.root_to_shoot_ratio }}"
+                  step="0.01"
+                  min="0.1"
+                  max="1"
+                />
+              </div>
+
+              <!-- Risk Factor -->
+              <div
+                class="form-group"
+                style="
+                  background: rgba(239, 68, 68, 0.1);
+                  padding: 1rem;
+                  border-radius: var(--radius-md);
+                  border: 1px solid rgba(239, 68, 68, 0.3);
+                "
+              >
+                <label for="risk_factor" style="color: var(--accent-danger)">
+                  ⚠️ Risk Buffer (Fires, Pests, Drought):
+                  <span class="range-value" id="riskFactorValue"
+                    >{{ defaults.risk_factor|int }}%</span
+                  >
+                </label>
+                <input
+                  type="range"
+                  id="risk_factor"
+                  name="risk_factor"
+                  value="{{ defaults.risk_factor }}"
+                  min="0"
+                  max="50"
+                  step="5"
+                />
+                <p
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--text-muted);
+                    margin-top: 0.5rem;
+                  "
+                >
+                  0% = Optimistic | 20% = Moderate | 40% = Pessimistic
+                </p>
+              </div>
+            </div>
+
+            <!-- Time Parameters -->
+            <div class="card">
+              <div class="card-header">
+                <span class="icon">📅</span>
+                <h2>Time Parameters</h2>
+              </div>
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label for="start_year">Start Year</label>
+                  <input
+                    type="number"
+                    id="start_year"
+                    name="start_year"
+                    value="{{ defaults.start_year }}"
+                    min="2020"
+                    max="2100"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="target_year">Target Year</label>
+                  <input
+                    type="number"
+                    id="target_year"
+                    name="target_year"
+                    value="{{ defaults.target_year }}"
+                    min="2025"
+                    max="2100"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              style="width: 100%; padding: 1rem"
+            >
+              🧮 Calculate Required Area
+            </button>
+          </div>
+
+          <!-- Right Column: Results -->
+          <div>
+            <!-- Summary Results -->
+            <div class="card">
+              <div class="card-header">
+                <span class="icon">📊</span>
+                <h2>Results Summary</h2>
+                {% if result.overall_feasible %}
+                <span class="badge badge-success">✓ Feasible</span>
+                {% else %}
+                <span class="badge badge-danger">✗ Not Feasible</span>
+                {% endif %}
+              </div>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="value">
+                    {{ "{:,.0f}".format(result.total_reduction_needed) }}
+                  </div>
+                  <div class="label">Total Reduction (MtCO₂e)</div>
+                </div>
+                <div class="result-item">
+                  <div class="value">
+                    {{ "{:,.0f}".format(result.sequestration_target) }}
+                  </div>
+                  <div class="label">From Sequestration (MtCO₂e)</div>
+                </div>
+                <div
+                  class="result-item {% if not result.overall_feasible %}warning{% endif %}"
+                >
+                  <div class="value">
+                    {{ "{:,.0f}".format(result.total_area_needed) }}
+                  </div>
+                  <div class="label">Total Area Needed (ha)</div>
+                </div>
+                <div class="result-item">
+                  <div class="value">{{ result.years }}</div>
+                  <div class="label">Years</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Forest Feasibility -->
+            <div class="card">
+              <div class="card-header">
+                <span class="icon">🌲</span>
+                <h2>Forest Area Analysis</h2>
+                {% if result.forest_feasibility.is_feasible %}
+                <span class="badge badge-success">✓ Feasible</span>
+                {% else %}
+                <span class="badge badge-danger">✗ Exceeds Capacity</span>
+                {% endif %}
+              </div>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="value">
+                    {{ "{:,.0f}".format(result.forest_area_needed) }}
+                  </div>
+                  <div class="label">Area Needed (ha)</div>
+                </div>
+                <div class="result-item">
+                  <div class="value">
+                    {{
+                    "{:,.0f}".format(result.forest_feasibility.area_available)
+                    }}
+                  </div>
+                  <div class="label">Available (ha)</div>
+                </div>
+                <div
+                  class="result-item {% if result.forest_feasibility.utilization_percent > 100 %}danger{% elif result.forest_feasibility.utilization_percent > 80 %}warning{% endif %}"
+                >
+                  <div class="value">
+                    {{
+                    "{:.1f}".format(result.forest_feasibility.utilization_percent)
+                    }}%
+                  </div>
+                  <div class="label">Utilization</div>
+                </div>
+                <div class="result-item">
+                  <div class="value">
+                    {{ "{:.1f}".format(result.effective_forest_rate) }}
+                  </div>
+                  <div class="label">Rate (tCO₂/ha/yr)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coastal Feasibility -->
+            <div class="card">
+              <div class="card-header">
+                <span class="icon">🌊</span>
+                <h2>Coastal Area Analysis</h2>
+                {% if result.coastal_feasibility.is_feasible %}
+                <span class="badge badge-success">✓ Feasible</span>
+                {% else %}
+                <span class="badge badge-danger">✗ Exceeds Capacity</span>
+                {% endif %}
+              </div>
+              <div class="result-grid">
+                <div class="result-item">
+                  <div class="value">
+                    {{ "{:,.0f}".format(result.coastal_area_needed) }}
+                  </div>
+                  <div class="label">Area Needed (ha)</div>
+                </div>
+                <div class="result-item">
+                  <div class="value">
+                    {{
+                    "{:,.0f}".format(result.coastal_feasibility.area_available)
+                    }}
+                  </div>
+                  <div class="label">Available (ha)</div>
+                </div>
+                <div
+                  class="result-item {% if result.coastal_feasibility.utilization_percent > 100 %}danger{% elif result.coastal_feasibility.utilization_percent > 80 %}warning{% endif %}"
+                >
+                  <div class="value">
+                    {{
+                    "{:.1f}".format(result.coastal_feasibility.utilization_percent)
+                    }}%
+                  </div>
+                  <div class="label">Utilization</div>
+                </div>
+                <div class="result-item">
+                  <div class="value">
+                    {{ "{:.1f}".format(result.effective_coastal_rate) }}
+                  </div>
+                  <div class="label">Rate (tCO₂/ha/yr)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Scenario Comparison -->
+            <div class="card">
+              <div class="card-header">
+                <span class="icon">📋</span>
+                <h2>Scenario Comparison</h2>
+              </div>
+              <p class="text-success mb-2">{{ scenarios.recommendation }}</p>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Scenario</th>
+                      <th>Total Area (ha)</th>
+                      <th>Forest %</th>
+                      <th>Coastal %</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for scenario in scenarios.scenarios %}
+                    <tr>
+                      <td>{{ scenario.scenario_name }}</td>
+                      <td>
+                        {{ "{:,.0f}".format(scenario.result.total_area_needed)
+                        }}
+                      </td>
+                      <td>
+                        {{
+                        "{:.1f}".format(scenario.result.forest_feasibility.utilization_percent)
+                        }}%
+                      </td>
+                      <td>
+                        {{
+                        "{:.1f}".format(scenario.result.coastal_feasibility.utilization_percent)
+                        }}%
+                      </td>
+                      <td>
+                        {% if scenario.result.overall_feasible %}
+                        <span class="badge badge-success">✓</span>
+                        {% else %}
+                        <span class="badge badge-danger">✗</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Charts Section -->
+      <div class="grid grid-2 mt-3">
+        <!-- Area Comparison Chart -->
+        <div class="card">
+          <div class="card-header">
+            <span class="icon">📊</span>
+            <h2>Current vs Required Area</h2>
+          </div>
+          <div style="position: relative; height: 300px">
+            <canvas id="areaComparisonChart"></canvas>
+          </div>
+          <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
+            Dark bars = Current Indonesia forest areas | Light bars = Area
+            needed for sequestration target
+          </p>
+        </div>
+
+        <!-- Annual Trajectory Chart -->
+        <div class="card">
+          <div class="card-header">
+            <span class="icon">📈</span>
+            <h2>
+              Annual Sequestration Growth ({{ defaults.start_year }}-{{
+              defaults.target_year }})
+            </h2>
+          </div>
+          <div style="position: relative; height: 300px">
+            <canvas id="trajectoryChart"></canvas>
+          </div>
+          <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
+            Shows cumulative area growth needed per year to achieve target
+          </p>
+        </div>
+      </div>
+
+      <!-- Scenario Comparison Chart -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <span class="icon">🎯</span>
+          <h2>Scenario Comparison - Total Area Required</h2>
+        </div>
+        <div style="position: relative; height: 250px">
+          <canvas id="scenarioChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Emissions Trajectory Chart -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <span class="icon">🌍</span>
+          <h2>Emissions Reduction Trajectory</h2>
+        </div>
+        <div style="position: relative; height: 300px">
+          <canvas id="emissionsChart"></canvas>
+        </div>
+        <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
+          Projected emissions decline from {{ defaults.start_year }} to {{
+          defaults.target_year }} with sequestration contribution
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>Based on IPCC 2006 Guidelines Vol.4 (AFOLU) • Tier 1 Methodology</p>
+        <p class="mt-2">Data sources: Indonesia NDC 2022, FOLU Net Sink 2030</p>
+      </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', path='/app.js') }}"></script>
+    <script>
+      // Chart data from backend
+      const chartData = {{ chart_data | tojson }};
+
+      // Color palette
+      const colors = {
+        forest: '#10b981',
+        forestLight: 'rgba(16, 185, 129, 0.3)',
+        coastal: '#3b82f6',
+        coastalLight: 'rgba(59, 130, 246, 0.3)',
+        warning: '#f59e0b',
+        danger: '#ef4444',
+        gradient1: '#10b981',
+        gradient2: '#3b82f6',
+        grid: 'rgba(255, 255, 255, 0.1)',
+        text: '#9ca3af'
+      };
+
+      // Common chart options
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: { color: colors.text }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: colors.text },
+            grid: { color: colors.grid }
+          },
+          y: {
+            ticks: { color: colors.text },
+            grid: { color: colors.grid }
+          }
+        }
+      };
+
+      // 1. Area Comparison Chart (Current vs Needed)
+      new Chart(document.getElementById('areaComparisonChart'), {
+        type: 'bar',
+        data: {
+          labels: chartData.area_comparison.labels,
+          datasets: [
+            {
+              label: 'Current Area (ha)',
+              data: chartData.area_comparison.current,
+              backgroundColor: [colors.forest, colors.coastal],
+              borderColor: [colors.forest, colors.coastal],
+              borderWidth: 2
+            },
+            {
+              label: 'Needed Area (ha)',
+              data: chartData.area_comparison.needed,
+              backgroundColor: [colors.forestLight, colors.coastalLight],
+              borderColor: [colors.forest, colors.coastal],
+              borderWidth: 2,
+              borderDash: [5, 5]
+            }
+          ]
+        },
+        options: {
+          ...commonOptions,
+          plugins: {
+            ...commonOptions.plugins,
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + context.raw.toLocaleString() + ' ha';
+                }
+              }
+            }
+          },
+          scales: {
+            ...commonOptions.scales,
+            y: {
+              ...commonOptions.scales.y,
+              title: {
+                display: true,
+                text: 'Area (hectares)',
+                color: colors.text
+              }
+            }
+          }
+        }
+      });
+
+      // 2. Annual Trajectory Chart (Cumulative Area Growth)
+      new Chart(document.getElementById('trajectoryChart'), {
+        type: 'line',
+        data: {
+          labels: chartData.trajectory.years,
+          datasets: [
+            {
+              label: 'Forest Area (ha)',
+              data: chartData.trajectory.forest_area_trajectory,
+              borderColor: colors.forest,
+              backgroundColor: colors.forestLight,
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Coastal Area (ha)',
+              data: chartData.trajectory.coastal_area_trajectory,
+              borderColor: colors.coastal,
+              backgroundColor: colors.coastalLight,
+              fill: true,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          ...commonOptions,
+          plugins: {
+            ...commonOptions.plugins,
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.dataset.label + ': ' + Math.round(context.raw).toLocaleString() + ' ha';
+                }
+              }
+            }
+          },
+          scales: {
+            ...commonOptions.scales,
+            y: {
+              ...commonOptions.scales.y,
+              title: {
+                display: true,
+                text: 'Cumulative Area (ha)',
+                color: colors.text
+              }
+            }
+          }
+        }
+      });
+
+      // 3. Scenario Comparison Chart
+      const scenarioNames = Object.keys(chartData.scenario_areas);
+      const scenarioTotals = scenarioNames.map(name => chartData.scenario_areas[name].total);
+      const scenarioColors = scenarioNames.map(name =>
+        chartData.scenario_areas[name].feasible ? colors.forest : colors.danger
+      );
+
+      new Chart(document.getElementById('scenarioChart'), {
+        type: 'bar',
+        data: {
+          labels: scenarioNames,
+          datasets: [{
+            label: 'Total Area Needed (ha)',
+            data: scenarioTotals,
+            backgroundColor: scenarioColors,
+            borderColor: scenarioColors,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          ...commonOptions,
+          indexAxis: 'y',
+          plugins: {
+            ...commonOptions.plugins,
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const feasible = chartData.scenario_areas[context.label].feasible;
+                  return context.raw.toLocaleString() + ' ha ' + (feasible ? '✓ Feasible' : '✗ Not Feasible');
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // 4. Emissions Trajectory Chart
+      new Chart(document.getElementById('emissionsChart'), {
+        type: 'line',
+        data: {
+          labels: chartData.trajectory.years,
+          datasets: [{
+            label: 'Remaining Emissions (MtCO₂e)',
+            data: chartData.trajectory.remaining_emissions,
+            borderColor: colors.warning,
+            backgroundColor: 'rgba(245, 158, 11, 0.2)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: colors.warning
+          }]
+        },
+        options: {
+          ...commonOptions,
+          plugins: {
+            ...commonOptions.plugins,
+            annotation: {
+              annotations: {
+                targetLine: {
+                  type: 'line',
+                  yMin: {{ defaults.target_2050 }},
+                  yMax: {{ defaults.target_2050 }},
+                  borderColor: colors.forest,
+                  borderWidth: 2,
+                  borderDash: [5, 5],
+                  label: {
+                    display: true,
+                    content: 'Target: {{ defaults.target_2050 }} MtCO₂e'
+                  }
+                }
+              }
+            }
+          },
+          scales: {
+            ...commonOptions.scales,
+            y: {
+              ...commonOptions.scales.y,
+              title: {
+                display: true,
+                text: 'Emissions (MtCO₂e)',
+                color: colors.text
+              },
+              min: 0
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

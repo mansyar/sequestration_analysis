@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>References | Carbon Sequestration Calculator</title>
+    <meta
+      name="description"
+      content="Academic references and citations for the IPCC 2006 Tier 1 carbon sequestration methodology"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <h1>📚 Academic References</h1>
+        <p class="subtitle">
+          Peer-reviewed sources for carbon sequestration methodology
+        </p>
+      </header>
+
+      <!-- Navigation -->
+      <nav class="nav">
+        <a href="/">📊 Calculator</a>
+        <a href="/references" class="active">📚 References</a>
+      </nav>
+
+      <!-- IPCC Primary Sources -->
+      <div class="card">
+        <div class="card-header">
+          <span class="icon">🌍</span>
+          <h2>IPCC Official Guidelines</h2>
+        </div>
+        <p class="text-secondary mb-3">
+          The sequestration rates used in this calculator are derived from the
+          Intergovernmental Panel on Climate Change (IPCC) official guidelines
+          for national greenhouse gas inventories.
+        </p>
+
+        {% for ref in references %} {% if 'IPCC' in ref.authors %}
+        <div class="reference-card">
+          <div class="authors">{{ ref.authors }} ({{ ref.year }})</div>
+          <div class="title">{{ ref.title }}</div>
+          <div class="journal">{{ ref.journal }}</div>
+          <div class="finding">
+            <strong>Key Finding:</strong> {{ ref.key_finding }}
+          </div>
+          <div class="links">
+            {% if ref.url %}
+            <a href="{{ ref.url }}" target="_blank" rel="noopener"
+              >🔗 View Source</a
+            >
+            {% endif %} {% if ref.doi %}
+            <a
+              href="https://doi.org/{{ ref.doi }}"
+              target="_blank"
+              rel="noopener"
+              >📄 DOI: {{ ref.doi }}</a
+            >
+            {% endif %}
+          </div>
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+
+      <!-- Peer-Reviewed Studies -->
+      <div class="card">
+        <div class="card-header">
+          <span class="icon">📝</span>
+          <h2>Peer-Reviewed Studies</h2>
+        </div>
+        <p class="text-secondary mb-3">
+          These peer-reviewed publications provide supporting evidence for
+          Indonesia-specific carbon sequestration potential and inform the
+          scenario recommendations.
+        </p>
+
+        {% for ref in references %} {% if 'IPCC' not in ref.authors and
+        'Indonesia' not in ref.authors %}
+        <div class="reference-card">
+          <div class="authors">{{ ref.authors }} ({{ ref.year }})</div>
+          <div class="title">{{ ref.title }}</div>
+          <div class="journal">{{ ref.journal }}</div>
+          <div class="finding">
+            <strong>Key Finding:</strong> {{ ref.key_finding }}
+          </div>
+          <div class="links">
+            {% if ref.url %}
+            <a href="{{ ref.url }}" target="_blank" rel="noopener"
+              >🔗 View Source</a
+            >
+            {% endif %} {% if ref.doi %}
+            <a
+              href="https://doi.org/{{ ref.doi }}"
+              target="_blank"
+              rel="noopener"
+              >📄 DOI: {{ ref.doi }}</a
+            >
+            {% endif %}
+          </div>
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+
+      <!-- Policy Documents -->
+      <div class="card">
+        <div class="card-header">
+          <span class="icon">🏛️</span>
+          <h2>Policy Documents</h2>
+        </div>
+        <p class="text-secondary mb-3">
+          Official Indonesian government documents and international commitments
+          that define emission targets and sequestration strategies.
+        </p>
+
+        {% for ref in references %} {% if 'Indonesia' in ref.authors or
+        'Republic' in ref.authors or 'Ministry' in ref.authors %}
+        <div class="reference-card">
+          <div class="authors">{{ ref.authors }} ({{ ref.year }})</div>
+          <div class="title">{{ ref.title }}</div>
+          <div class="journal">{{ ref.journal }}</div>
+          <div class="finding">
+            <strong>Key Finding:</strong> {{ ref.key_finding }}
+          </div>
+          <div class="links">
+            {% if ref.url %}
+            <a href="{{ ref.url }}" target="_blank" rel="noopener"
+              >🔗 View Source</a
+            >
+            {% endif %} {% if ref.doi %}
+            <a
+              href="https://doi.org/{{ ref.doi }}"
+              target="_blank"
+              rel="noopener"
+              >📄 DOI: {{ ref.doi }}</a
+            >
+            {% endif %}
+          </div>
+        </div>
+        {% endif %} {% endfor %}
+      </div>
+
+      <!-- Methodology Notes -->
+      <div class="card">
+        <div class="card-header">
+          <span class="icon">📐</span>
+          <h2>Methodology Notes</h2>
+        </div>
+
+        <h3 class="mb-2" style="font-size: 1rem; color: var(--text-secondary)">
+          Tier 1 Approach
+        </h3>
+        <p class="mb-3">
+          This calculator uses the IPCC Tier 1 methodology, which applies
+          globally/regionally averaged default values for carbon sequestration
+          rates. This approach is suitable for:
+        </p>
+        <ul
+          style="
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+          "
+        >
+          <li>Initial feasibility assessments</li>
+          <li>Policy scenario comparisons</li>
+          <li>Educational and planning purposes</li>
+        </ul>
+
+        <h3 class="mb-2" style="font-size: 1rem; color: var(--text-secondary)">
+          Key Equations
+        </h3>
+        <div
+          style="
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            margin-bottom: 1rem;
+          "
+        >
+          <p><strong>Annual CO₂ Sequestration:</strong></p>
+          <p style="color: var(--accent-primary)">
+            ΔC = Biomass Growth × Carbon Fraction × (44/12)
+          </p>
+          <p class="mt-2 text-muted" style="font-size: 0.85rem">
+            Where: Carbon Fraction = 0.47 (forest) / 0.45 (mangrove)<br />
+            44/12 = Molecular weight ratio CO₂/C = 3.67
+          </p>
+        </div>
+
+        <div
+          style="
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+          "
+        >
+          <p><strong>Full Biomass (with below-ground):</strong></p>
+          <p style="color: var(--accent-primary)">
+            Total Rate = Above-ground Rate × (1 + R:S Ratio)
+          </p>
+          <p class="mt-2 text-muted" style="font-size: 0.85rem">
+            Where: R:S Ratio = 0.37 for tropical moist forests (IPCC Table 4.4)
+          </p>
+        </div>
+
+        <h3
+          class="mb-2 mt-3"
+          style="font-size: 1rem; color: var(--text-secondary)"
+        >
+          Limitations
+        </h3>
+        <p class="text-muted">
+          For policy-grade analysis, Tier 2/3 approaches using country-specific
+          data are recommended. This calculator provides estimates for planning
+          purposes only.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>Based on IPCC 2006 Guidelines Vol.4 (AFOLU) • Tier 1 Methodology</p>
+        <p class="mt-2">Data sources: Indonesia NDC 2022, FOLU Net Sink 2030</p>
+      </footer>
+    </div>
+  </body>
+</html>
