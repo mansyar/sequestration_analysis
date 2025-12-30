@@ -15,7 +15,7 @@ from typing import Annotated
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from calculator.models import CalculatorInput, ScenarioType
-from calculator.formulas import calculate_sequestration, compare_scenarios, generate_trajectory
+from calculator.formulas import calculate_sequestration, compare_scenarios, generate_trajectory, generate_multi_risk_data
 from calculator.constants import (
     SCENARIOS,
     REFERENCES,
@@ -70,14 +70,20 @@ async def home(request: Request):
         "start_year": DEFAULT_START_YEAR,
         "target_year": DEFAULT_TARGET_YEAR,
         "include_below_ground": False,
-        "risk_factor": 0
+        "risk_factor": 0,
+        "degradation_rate": 2.0
     }
     
+    # Default selected risk scenarios
+    selected_risk_scenarios = ["Optimistic", "Moderate", "Pessimistic"]
+    defaults["selected_risk_scenarios"] = selected_risk_scenarios
+    
     # Calculate default result
-    default_input = CalculatorInput(**defaults)
+    default_input = CalculatorInput(**{k: v for k, v in defaults.items() if k != "selected_risk_scenarios"})
     result = calculate_sequestration(default_input)
     scenarios = compare_scenarios(default_input)
     chart_data = generate_trajectory(default_input, result)
+    multi_risk_data = generate_multi_risk_data(default_input, selected_risk_scenarios)
     
     return templates.TemplateResponse(
         "index.html",
@@ -87,7 +93,8 @@ async def home(request: Request):
             "result": result,
             "scenarios": scenarios,
             "scenario_presets": SCENARIOS,
-            "chart_data": chart_data.model_dump()
+            "chart_data": chart_data.model_dump(),
+            "multi_risk_data": multi_risk_data.model_dump()
         }
     )
 
@@ -108,6 +115,7 @@ async def calculate(
     target_year: Annotated[int, Form()],
     include_below_ground: Annotated[bool, Form()] = False,
     risk_factor: Annotated[float, Form()] = 0,
+    degradation_rate: Annotated[float, Form()] = 2.0,
     scenario: Annotated[str, Form()] = "custom"
 ):
     """Process calculation and return results"""
@@ -127,6 +135,7 @@ async def calculate(
         target_year=target_year,
         include_below_ground=include_below_ground,
         risk_factor=risk_factor,
+        degradation_rate=degradation_rate,
         scenario=ScenarioType(scenario) if scenario != "custom" else ScenarioType.CUSTOM
     )
     
@@ -134,6 +143,10 @@ async def calculate(
     result = calculate_sequestration(calc_input)
     scenarios = compare_scenarios(calc_input)
     chart_data = generate_trajectory(calc_input, result)
+    
+    # Default all risk scenarios selected for multi-risk chart
+    selected_risk_scenarios = ["Optimistic", "Moderate", "Pessimistic"]
+    multi_risk_data = generate_multi_risk_data(calc_input, selected_risk_scenarios)
     
     # Build defaults from current input
     defaults = {
@@ -149,7 +162,9 @@ async def calculate(
         "start_year": start_year,
         "target_year": target_year,
         "include_below_ground": include_below_ground,
-        "risk_factor": risk_factor
+        "risk_factor": risk_factor,
+        "degradation_rate": degradation_rate,
+        "selected_risk_scenarios": selected_risk_scenarios
     }
     
     return templates.TemplateResponse(
@@ -160,7 +175,8 @@ async def calculate(
             "result": result,
             "scenarios": scenarios,
             "scenario_presets": SCENARIOS,
-            "chart_data": chart_data.model_dump()
+            "chart_data": chart_data.model_dump(),
+            "multi_risk_data": multi_risk_data.model_dump()
         }
     )
 
@@ -173,6 +189,17 @@ async def references(request: Request):
         {
             "request": request,
             "references": REFERENCES
+        }
+    )
+
+
+@app.get("/methodology", response_class=HTMLResponse)
+async def methodology(request: Request):
+    """Render the methodology and theory page"""
+    return templates.TemplateResponse(
+        "methodology.html",
+        {
+            "request": request
         }
     )
 

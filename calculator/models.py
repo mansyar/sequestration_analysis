@@ -105,6 +105,14 @@ class CalculatorInput(BaseModel):
         description="Risk buffer % (fires, pests, drought) - reduces effective sequestration"
     )
     
+    # Annual degradation rate of existing forests
+    degradation_rate: float = Field(
+        default=2.0,
+        ge=0,
+        le=10,
+        description="Annual % decline in existing forest sequestration capacity"
+    )
+    
     # Scenario selection
     scenario: ScenarioType = Field(
         default=ScenarioType.BALANCED,
@@ -202,3 +210,22 @@ class ChartData(BaseModel):
     area_comparison: dict  # For bar chart: current vs needed
     scenario_areas: dict  # For scenario comparison chart
 
+
+class RiskScenarioData(BaseModel):
+    """Data for a single risk scenario for multi-scenario charts"""
+    name: str  # "Optimistic", "Moderate", "Pessimistic"
+    risk_factor: float  # 0, 20, 40
+    color: str  # Chart color
+    total_area_needed: float
+    forest_area_needed: float
+    coastal_area_needed: float
+    years: List[int]
+    area_trajectory: List[float]  # Cumulative area needed per year
+    emissions_trajectory: List[float]  # Remaining emissions per year
+
+
+class MultiRiskChartData(BaseModel):
+    """Chart data for multiple risk scenarios"""
+    scenarios: List[RiskScenarioData]
+    current_forest: float
+    current_coastal: float

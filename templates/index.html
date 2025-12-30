@@ -231,7 +231,7 @@
                 />
               </div>
 
-              <!-- Risk Factor -->
+              <!-- Risk Scenarios (Checkboxes for chart comparison) -->
               <div
                 class="form-group"
                 style="
@@ -241,20 +241,120 @@
                   border: 1px solid rgba(239, 68, 68, 0.3);
                 "
               >
-                <label for="risk_factor" style="color: var(--accent-danger)">
-                  ⚠️ Risk Buffer (Fires, Pests, Drought):
-                  <span class="range-value" id="riskFactorValue"
-                    >{{ defaults.risk_factor|int }}%</span
+                <label
+                  style="
+                    color: var(--accent-danger);
+                    margin-bottom: 0.75rem;
+                    display: block;
+                  "
+                >
+                  ⚠️ Risk Scenarios (shown on charts):
+                </label>
+                <!-- Hidden inputs to ensure form submission -->
+                <input
+                  type="hidden"
+                  name="risk_factor"
+                  value="{{ defaults.risk_factor }}"
+                />
+
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap">
+                  <label
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                      cursor: pointer;
+                    "
+                  >
+                    <input
+                      type="checkbox"
+                      name="risk_optimistic"
+                      value="Optimistic"
+                      checked
+                      style="width: 18px; height: 18px; accent-color: #22c55e"
+                    />
+                    <span style="color: #22c55e; font-weight: 500"
+                      >🟢 Optimistic (0%)</span
+                    >
+                  </label>
+
+                  <label
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                      cursor: pointer;
+                    "
+                  >
+                    <input
+                      type="checkbox"
+                      name="risk_moderate"
+                      value="Moderate"
+                      checked
+                      style="width: 18px; height: 18px; accent-color: #f59e0b"
+                    />
+                    <span style="color: #f59e0b; font-weight: 500"
+                      >🟡 Moderate (20%)</span
+                    >
+                  </label>
+
+                  <label
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                      cursor: pointer;
+                    "
+                  >
+                    <input
+                      type="checkbox"
+                      name="risk_pessimistic"
+                      value="Pessimistic"
+                      checked
+                      style="width: 18px; height: 18px; accent-color: #ef4444"
+                    />
+                    <span style="color: #ef4444; font-weight: 500"
+                      >🔴 Pessimistic (40%)</span
+                    >
+                  </label>
+                </div>
+
+                <p
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--text-muted);
+                    margin-top: 0.75rem;
+                  "
+                >
+                  Select scenarios to compare on charts. Risk accounts for
+                  fires, pests, drought, etc.
+                </p>
+              </div>
+
+              <!-- Forest Degradation Rate -->
+              <div
+                class="form-group"
+                style="
+                  background: rgba(245, 158, 11, 0.1);
+                  padding: 1rem;
+                  border-radius: var(--radius-md);
+                  border: 1px solid rgba(245, 158, 11, 0.3);
+                "
+              >
+                <label for="degradation_rate" style="color: #f59e0b">
+                  📉 Forest Degradation Rate (% per year):
+                  <span class="range-value" id="degradationRateValue"
+                    >{{ defaults.degradation_rate|round(1) }}%</span
                   >
                 </label>
                 <input
                   type="range"
-                  id="risk_factor"
-                  name="risk_factor"
-                  value="{{ defaults.risk_factor }}"
+                  id="degradation_rate"
+                  name="degradation_rate"
+                  value="{{ defaults.degradation_rate }}"
                   min="0"
-                  max="50"
-                  step="5"
+                  max="10"
+                  step="0.5"
                 />
                 <p
                   style="
@@ -263,7 +363,8 @@
                     margin-top: 0.5rem;
                   "
                 >
-                  0% = Optimistic | 20% = Moderate | 40% = Pessimistic
+                  Annual loss of existing forest sequestration capacity
+                  (deforestation, degradation)
                 </p>
               </div>
             </div>
@@ -341,7 +442,7 @@
                   <div class="value">
                     {{ "{:,.0f}".format(result.total_area_needed) }}
                   </div>
-                  <div class="label">Total Area Needed (ha)</div>
+                  <div class="label">New Reforestation Needed (ha)</div>
                 </div>
                 <div class="result-item">
                   <div class="value">{{ result.years }}</div>
@@ -354,7 +455,7 @@
             <div class="card">
               <div class="card-header">
                 <span class="icon">🌲</span>
-                <h2>Forest Area Analysis</h2>
+                <h2>Land Forest Reforestation</h2>
                 {% if result.forest_feasibility.is_feasible %}
                 <span class="badge badge-success">✓ Feasible</span>
                 {% else %}
@@ -366,7 +467,7 @@
                   <div class="value">
                     {{ "{:,.0f}".format(result.forest_area_needed) }}
                   </div>
-                  <div class="label">Area Needed (ha)</div>
+                  <div class="label">New Planting Needed (ha)</div>
                 </div>
                 <div class="result-item">
                   <div class="value">
@@ -374,7 +475,7 @@
                     "{:,.0f}".format(result.forest_feasibility.area_available)
                     }}
                   </div>
-                  <div class="label">Available (ha)</div>
+                  <div class="label">Current Forest (ha)</div>
                 </div>
                 <div
                   class="result-item {% if result.forest_feasibility.utilization_percent > 100 %}danger{% elif result.forest_feasibility.utilization_percent > 80 %}warning{% endif %}"
@@ -399,7 +500,7 @@
             <div class="card">
               <div class="card-header">
                 <span class="icon">🌊</span>
-                <h2>Coastal Area Analysis</h2>
+                <h2>Coastal/Mangrove Restoration</h2>
                 {% if result.coastal_feasibility.is_feasible %}
                 <span class="badge badge-success">✓ Feasible</span>
                 {% else %}
@@ -411,7 +512,7 @@
                   <div class="value">
                     {{ "{:,.0f}".format(result.coastal_area_needed) }}
                   </div>
-                  <div class="label">Area Needed (ha)</div>
+                  <div class="label">New Restoration Needed (ha)</div>
                 </div>
                 <div class="result-item">
                   <div class="value">
@@ -419,7 +520,7 @@
                     "{:,.0f}".format(result.coastal_feasibility.area_available)
                     }}
                   </div>
-                  <div class="label">Available (ha)</div>
+                  <div class="label">Current Coastal (ha)</div>
                 </div>
                 <div
                   class="result-item {% if result.coastal_feasibility.utilization_percent > 100 %}danger{% elif result.coastal_feasibility.utilization_percent > 80 %}warning{% endif %}"
@@ -499,14 +600,13 @@
         <div class="card">
           <div class="card-header">
             <span class="icon">📊</span>
-            <h2>Current vs Required Area</h2>
+            <h2>Current vs Required Area by Risk</h2>
           </div>
           <div style="position: relative; height: 300px">
             <canvas id="areaComparisonChart"></canvas>
           </div>
           <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
-            Dark bars = Current Indonesia forest areas | Light bars = Area
-            needed for sequestration target
+            Gray = Current area | 🟢 Optimistic | 🟡 Moderate | 🔴 Pessimistic
           </p>
         </div>
 
@@ -515,7 +615,7 @@
           <div class="card-header">
             <span class="icon">📈</span>
             <h2>
-              Annual Sequestration Growth ({{ defaults.start_year }}-{{
+              Reforestation Trajectory ({{ defaults.start_year }}-{{
               defaults.target_year }})
             </h2>
           </div>
@@ -523,20 +623,25 @@
             <canvas id="trajectoryChart"></canvas>
           </div>
           <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
-            Shows cumulative area growth needed per year to achieve target
+            Cumulative area growth by risk scenario: 🟢 Optimistic | 🟡 Moderate
+            | 🔴 Pessimistic
           </p>
         </div>
       </div>
 
-      <!-- Scenario Comparison Chart -->
+      <!-- Risk Scenario Comparison Chart (Stacked) -->
       <div class="card mt-3">
         <div class="card-header">
-          <span class="icon">🎯</span>
-          <h2>Scenario Comparison - Total Area Required</h2>
+          <span class="icon">⚠️</span>
+          <h2>Risk Scenario Comparison - Stacked Area Needed</h2>
         </div>
-        <div style="position: relative; height: 250px">
+        <div style="position: relative; height: 280px">
           <canvas id="scenarioChart"></canvas>
         </div>
+        <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
+          🟢 Optimistic (0% risk) | 🟡 Moderate (20% risk) | 🔴 Pessimistic (40%
+          risk) — Stacked: Forest + Coastal
+        </p>
       </div>
 
       <!-- Emissions Trajectory Chart -->
@@ -554,6 +659,29 @@
         </p>
       </div>
 
+      <!-- Methodology Link -->
+      <div class="card mt-3" style="text-align: center; padding: 1.5rem">
+        <h3 style="margin-bottom: 0.5rem">
+          📚 Want to understand the calculations?
+        </h3>
+        <p style="margin-bottom: 1rem; color: var(--text-muted)">
+          Learn about the IPCC methodology, formulas, and assumptions behind
+          this calculator.
+        </p>
+        <a
+          href="/methodology"
+          class="btn-submit"
+          style="
+            display: inline-block;
+            text-decoration: none;
+            max-width: 300px;
+            margin: 0 auto;
+          "
+        >
+          View Methodology & Theory
+        </a>
+      </div>
+
       <!-- Footer -->
       <footer class="footer">
         <p>Based on IPCC 2006 Guidelines Vol.4 (AFOLU) • Tier 1 Methodology</p>
@@ -566,7 +694,7 @@
     <script>
       // Chart data from backend
       const chartData = {{ chart_data | tojson }};
-
+      const multiRiskData = {{ multi_risk_data | tojson }};
       // Color palette
       const colors = {
         forest: '#10b981',
@@ -602,27 +730,26 @@
         }
       };
 
-      // 1. Area Comparison Chart (Current vs Needed)
+      // 1. Area Comparison Chart (Current vs Risk Scenarios)
       new Chart(document.getElementById('areaComparisonChart'), {
         type: 'bar',
         data: {
-          labels: chartData.area_comparison.labels,
+          labels: ['Forest', 'Coastal'],
           datasets: [
             {
-              label: 'Current Area (ha)',
-              data: chartData.area_comparison.current,
-              backgroundColor: [colors.forest, colors.coastal],
-              borderColor: [colors.forest, colors.coastal],
+              label: 'Current Area',
+              data: [multiRiskData.current_forest, multiRiskData.current_coastal],
+              backgroundColor: ['rgba(107, 114, 128, 0.8)', 'rgba(107, 114, 128, 0.8)'],
+              borderColor: ['#6b7280', '#6b7280'],
               borderWidth: 2
             },
-            {
-              label: 'Needed Area (ha)',
-              data: chartData.area_comparison.needed,
-              backgroundColor: [colors.forestLight, colors.coastalLight],
-              borderColor: [colors.forest, colors.coastal],
-              borderWidth: 2,
-              borderDash: [5, 5]
-            }
+            ...multiRiskData.scenarios.map(s => ({
+              label: s.name + ' (' + s.risk_factor + '% risk)',
+              data: [s.forest_area_needed, s.coastal_area_needed],
+              backgroundColor: [s.color + '99', s.color + '66'],
+              borderColor: [s.color, s.color],
+              borderWidth: 2
+            }))
           ]
         },
         options: {
@@ -632,7 +759,11 @@
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  return context.dataset.label + ': ' + context.raw.toLocaleString() + ' ha';
+                  const value = context.raw;
+                  if (value >= 1000000) {
+                    return context.dataset.label + ': ' + (value / 1000000).toFixed(2) + 'M ha';
+                  }
+                  return context.dataset.label + ': ' + value.toLocaleString() + ' ha';
                 }
               }
             }
@@ -651,27 +782,84 @@
         }
       });
 
-      // 2. Annual Trajectory Chart (Cumulative Area Growth)
+      // 2. Annual Trajectory Chart - Multi Risk Scenario Lines
       new Chart(document.getElementById('trajectoryChart'), {
         type: 'line',
         data: {
-          labels: chartData.trajectory.years,
+          labels: multiRiskData.scenarios[0]?.years || chartData.trajectory.years,
+          datasets: multiRiskData.scenarios.flatMap(s => [
+            {
+              label: s.name + ' - Total Area (ha)',
+              data: s.area_trajectory,
+              borderColor: s.color,
+              backgroundColor: s.color + '33',
+              fill: false,
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: 2
+            }
+          ])
+        },
+        options: {
+          ...commonOptions,
+          plugins: {
+            ...commonOptions.plugins,
+            title: {
+              display: true,
+              text: 'Cumulative Reforestation/Restoration by Risk Scenario',
+              color: colors.text,
+              font: { size: 14 }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const value = context.raw;
+                  if (value >= 1000000) {
+                    return context.dataset.label + ': ' + (value / 1000000).toFixed(2) + 'M ha';
+                  }
+                  return context.dataset.label + ': ' + Math.round(value).toLocaleString() + ' ha';
+                }
+              }
+            },
+            legend: {
+              labels: { color: colors.text }
+            }
+          },
+          scales: {
+            ...commonOptions.scales,
+            y: {
+              ...commonOptions.scales.y,
+              title: {
+                display: true,
+                text: 'Cumulative Area Needed (ha)',
+                color: colors.text
+              }
+            }
+          }
+        }
+      });
+
+      // 3. Risk Scenario Stacked Bar Chart
+      new Chart(document.getElementById('scenarioChart'), {
+        type: 'bar',
+        data: {
+          labels: multiRiskData.scenarios.map(s => s.name + ' (' + s.risk_factor + '%)'),
           datasets: [
             {
-              label: 'Forest Area (ha)',
-              data: chartData.trajectory.forest_area_trajectory,
-              borderColor: colors.forest,
-              backgroundColor: colors.forestLight,
-              fill: true,
-              tension: 0.3
+              label: 'Forest Reforestation (Million ha)',
+              data: multiRiskData.scenarios.map(s => s.forest_area_needed / 1000000),
+              backgroundColor: multiRiskData.scenarios.map(s => s.color + 'DD'),
+              borderColor: multiRiskData.scenarios.map(s => s.color),
+              borderWidth: 2,
+              stack: 'stack1'
             },
             {
-              label: 'Coastal Area (ha)',
-              data: chartData.trajectory.coastal_area_trajectory,
-              borderColor: colors.coastal,
-              backgroundColor: colors.coastalLight,
-              fill: true,
-              tension: 0.3
+              label: 'Coastal Restoration (Million ha)',
+              data: multiRiskData.scenarios.map(s => s.coastal_area_needed / 1000000),
+              backgroundColor: multiRiskData.scenarios.map(s => s.color + '66'),
+              borderColor: multiRiskData.scenarios.map(s => s.color),
+              borderWidth: 2,
+              stack: 'stack1'
             }
           ]
         },
@@ -682,18 +870,29 @@
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  return context.dataset.label + ': ' + Math.round(context.raw).toLocaleString() + ' ha';
+                  return context.dataset.label + ': ' + context.raw.toFixed(2) + ' M ha';
+                },
+                afterBody: function(context) {
+                  const idx = context[0].dataIndex;
+                  const scenario = multiRiskData.scenarios[idx];
+                  const total = (scenario.forest_area_needed + scenario.coastal_area_needed) / 1000000;
+                  return ['─────────────', 'Total: ' + total.toFixed(2) + ' M ha'];
                 }
               }
             }
           },
           scales: {
             ...commonOptions.scales,
+            x: {
+              stacked: true,
+              ...commonOptions.scales.x
+            },
             y: {
+              stacked: true,
               ...commonOptions.scales.y,
               title: {
                 display: true,
-                text: 'Cumulative Area (ha)',
+                text: 'Area Needed (Million ha)',
                 color: colors.text
               }
             }
@@ -701,75 +900,30 @@
         }
       });
 
-      // 3. Scenario Comparison Chart
-      const scenarioNames = Object.keys(chartData.scenario_areas);
-      const scenarioTotals = scenarioNames.map(name => chartData.scenario_areas[name].total);
-      const scenarioColors = scenarioNames.map(name =>
-        chartData.scenario_areas[name].feasible ? colors.forest : colors.danger
-      );
-
-      new Chart(document.getElementById('scenarioChart'), {
-        type: 'bar',
+      // 4. Emissions Trajectory Chart - Multi Risk
+      new Chart(document.getElementById('emissionsChart'), {
+        type: 'line',
         data: {
-          labels: scenarioNames,
-          datasets: [{
-            label: 'Total Area Needed (ha)',
-            data: scenarioTotals,
-            backgroundColor: scenarioColors,
-            borderColor: scenarioColors,
-            borderWidth: 2
-          }]
+          labels: multiRiskData.scenarios[0]?.years || chartData.trajectory.years,
+          datasets: multiRiskData.scenarios.map(s => ({
+            label: s.name + ' (' + s.risk_factor + '% risk)',
+            data: s.emissions_trajectory,
+            borderColor: s.color,
+            backgroundColor: s.color + '22',
+            fill: s.name === 'Moderate' ? true : false,
+            tension: 0.3,
+            borderWidth: s.name === 'Moderate' ? 4 : 2,
+            pointRadius: s.name === 'Moderate' ? 4 : 2
+          }))
         },
         options: {
           ...commonOptions,
-          indexAxis: 'y',
           plugins: {
             ...commonOptions.plugins,
             tooltip: {
               callbacks: {
                 label: function(context) {
-                  const feasible = chartData.scenario_areas[context.label].feasible;
-                  return context.raw.toLocaleString() + ' ha ' + (feasible ? '✓ Feasible' : '✗ Not Feasible');
-                }
-              }
-            }
-          }
-        }
-      });
-
-      // 4. Emissions Trajectory Chart
-      new Chart(document.getElementById('emissionsChart'), {
-        type: 'line',
-        data: {
-          labels: chartData.trajectory.years,
-          datasets: [{
-            label: 'Remaining Emissions (MtCO₂e)',
-            data: chartData.trajectory.remaining_emissions,
-            borderColor: colors.warning,
-            backgroundColor: 'rgba(245, 158, 11, 0.2)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 4,
-            pointBackgroundColor: colors.warning
-          }]
-        },
-        options: {
-          ...commonOptions,
-          plugins: {
-            ...commonOptions.plugins,
-            annotation: {
-              annotations: {
-                targetLine: {
-                  type: 'line',
-                  yMin: {{ defaults.target_2050 }},
-                  yMax: {{ defaults.target_2050 }},
-                  borderColor: colors.forest,
-                  borderWidth: 2,
-                  borderDash: [5, 5],
-                  label: {
-                    display: true,
-                    content: 'Target: {{ defaults.target_2050 }} MtCO₂e'
-                  }
+                  return context.dataset.label + ': ' + Math.round(context.raw).toLocaleString() + ' MtCO₂e';
                 }
               }
             }

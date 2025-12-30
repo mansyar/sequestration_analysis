@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Methodology & Theory - Carbon Sequestration Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/index.css') }}" />
+    <style>
+      .methodology-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .formula-box {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        font-family: "Courier New", monospace;
+      }
+      .formula-box h4 {
+        color: var(--accent-success);
+        margin-bottom: 1rem;
+      }
+      .formula-box .formula {
+        font-size: 1.1rem;
+        color: var(--text-primary);
+        background: rgba(0, 0, 0, 0.3);
+        padding: 1rem;
+        border-radius: var(--radius-sm);
+        overflow-x: auto;
+      }
+      .parameter-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+      }
+      .parameter-table th,
+      .parameter-table td {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        text-align: left;
+      }
+      .parameter-table th {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--accent-success);
+      }
+      .parameter-table tr:nth-child(even) {
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .section-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+      .section-card h2 {
+        color: var(--accent-success);
+        border-bottom: 2px solid var(--accent-success);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .section-card h3 {
+        color: var(--text-primary);
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 2rem;
+        color: var(--accent-success);
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
+      .highlight {
+        background: rgba(245, 158, 11, 0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: var(--radius-sm);
+      }
+      .warning-box {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+      .info-box {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="methodology-container">
+      <a href="/" class="back-link">← Back to Calculator</a>
+
+      <header style="text-align: center; margin-bottom: 3rem">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem">
+          📚 Methodology & Theory
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem">
+          Understanding the science behind carbon sequestration calculations
+        </p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <div class="section-card">
+        <h2>🎯 Overview</h2>
+        <p>
+          This calculator estimates the
+          <strong>new forest and coastal area</strong> required through
+          reforestation and restoration to achieve Indonesia's 2050 carbon
+          reduction targets. The methodology is based on the
+          <strong
+            >IPCC 2006 Guidelines for National Greenhouse Gas
+            Inventories</strong
+          >, specifically Volume 4 (Agriculture, Forestry and Other Land Use -
+          AFOLU), using Tier 1 methodology.
+        </p>
+
+        <div class="info-box">
+          <strong>Key Assumption:</strong> Existing mature forests are at carbon
+          equilibrium (they absorb roughly as much CO₂ as they release). To
+          achieve <em>net additional</em> sequestration, we must plant
+          <strong>new forests</strong> that are actively growing.
+        </div>
+      </div>
+
+      <!-- Section 2: Core Formula -->
+      <div class="section-card">
+        <h2>🔢 Core Calculation Formula</h2>
+
+        <p>The calculator follows this step-by-step process:</p>
+
+        <div class="formula-box">
+          <h4>Step 1: Calculate Total Reduction Needed</h4>
+          <div class="formula">
+            Total_Reduction = Emissions_2030 - Target_2050
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            Example: 1,200 MtCO₂e - 540 MtCO₂e =
+            <strong>660 MtCO₂e</strong> reduction needed
+          </p>
+        </div>
+
+        <div class="formula-box">
+          <h4>Step 2: Calculate Sequestration Target</h4>
+          <div class="formula">
+            Sequestration_Target = Total_Reduction × Sequestration_Percent
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            Example: 660 MtCO₂e × 25% = <strong>165 MtCO₂e</strong> from
+            sequestration
+          </p>
+        </div>
+
+        <div class="formula-box">
+          <h4>Step 3: Calculate Effective Sequestration Rate</h4>
+          <div class="formula">
+            Effective_Rate = Base_Rate × (1 + Root_Ratio) × (1 - Risk_Factor)
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            Example: 7.0 tCO₂/ha/yr × 1.26 × 0.80 =
+            <strong>7.06 tCO₂/ha/yr</strong>
+          </p>
+        </div>
+
+        <div class="formula-box">
+          <h4>Step 4: Calculate Weighted Average Rate</h4>
+          <div class="formula">
+            Weighted_Rate = (Forest% × Forest_Rate) + (Coastal% × Coastal_Rate)
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            Example: (80% × 7.06) + (20% × 9.45) =
+            <strong>7.54 tCO₂/ha/yr</strong>
+          </p>
+        </div>
+
+        <div class="formula-box">
+          <h4>Step 5: Account for Forest Degradation Loss</h4>
+          <div class="formula">
+            Degradation_Loss = Existing_Area × Cumulative_Loss_Factor × Rate
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            With 2% annual degradation over 20 years, ~33% of existing forest
+            capacity is lost. New forests must compensate for this loss.
+          </p>
+        </div>
+
+        <div class="formula-box">
+          <h4>Step 6: Calculate Total Area Needed</h4>
+          <div class="formula">
+            Total_Area = (Sequestration_Target + Degradation_Loss) /
+            (Weighted_Rate × Years)
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            Final calculation of hectares needed for new
+            reforestation/restoration.
+          </p>
+        </div>
+      </div>
+
+      <!-- Section 3: IPCC Parameters -->
+      <div class="section-card">
+        <h2>📊 IPCC Default Parameters</h2>
+
+        <h3>Sequestration Rates (Tier 1)</h3>
+        <table class="parameter-table">
+          <tr>
+            <th>Ecosystem Type</th>
+            <th>Rate (tCO₂/ha/yr)</th>
+            <th>Source</th>
+          </tr>
+          <tr>
+            <td>🌲 Tropical Rainforest (Land)</td>
+            <td>7.0</td>
+            <td>IPCC 2006, Table 4.9</td>
+          </tr>
+          <tr>
+            <td>🌊 Coastal/Mangrove</td>
+            <td>7.5</td>
+            <td>IPCC Wetlands Supplement</td>
+          </tr>
+        </table>
+
+        <h3>Below-Ground Biomass</h3>
+        <table class="parameter-table">
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Meaning</th>
+          </tr>
+          <tr>
+            <td>Root-to-Shoot Ratio</td>
+            <td>0.26</td>
+            <td>Roots add 26% more carbon storage to above-ground estimate</td>
+          </tr>
+        </table>
+
+        <h3>Indonesia-Specific Data</h3>
+        <table class="parameter-table">
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Source</th>
+          </tr>
+          <tr>
+            <td>Current Forest Area</td>
+            <td>120,343,230 ha</td>
+            <td>Indonesia 2022 Forest Statistics</td>
+          </tr>
+          <tr>
+            <td>Coastal/Mangrove Area</td>
+            <td>3,364,080 ha</td>
+            <td>Indonesia Mangrove Alliance</td>
+          </tr>
+          <tr>
+            <td>2030 Emissions Baseline</td>
+            <td>1,200 MtCO₂e</td>
+            <td>Indonesia NDC 2022</td>
+          </tr>
+          <tr>
+            <td>2050 Target</td>
+            <td>540 MtCO₂e</td>
+            <td>Indonesia Net-Zero Roadmap</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Section 4: Risk Scenarios -->
+      <div class="section-card">
+        <h2>⚠️ Risk Scenarios</h2>
+
+        <p>
+          Not all planted forests will survive until maturity. The risk factor
+          accounts for potential losses from:
+        </p>
+        <ul>
+          <li>
+            🔥 <strong>Forest Fires</strong> - Indonesia experiences significant
+            fire seasons
+          </li>
+          <li>
+            🐛 <strong>Pests & Disease</strong> - Monoculture plantations are
+            vulnerable
+          </li>
+          <li>
+            🌡️ <strong>Climate Stress</strong> - Drought, flooding, extreme
+            weather
+          </li>
+          <li>
+            🪚 <strong>Illegal Logging</strong> - Enforcement challenges remain
+          </li>
+        </ul>
+
+        <table class="parameter-table">
+          <tr>
+            <th>Scenario</th>
+            <th>Risk Factor</th>
+            <th>Interpretation</th>
+          </tr>
+          <tr style="color: #22c55e">
+            <td>🟢 Optimistic</td>
+            <td>0%</td>
+            <td>
+              Best case: all planted forests survive and sequester at full
+              capacity
+            </td>
+          </tr>
+          <tr style="color: #f59e0b">
+            <td>🟡 Moderate</td>
+            <td>20%</td>
+            <td>Realistic: standard losses from natural disturbances</td>
+          </tr>
+          <tr style="color: #ef4444">
+            <td>🔴 Pessimistic</td>
+            <td>40%</td>
+            <td>Worst case: high losses from combined stressors</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Section 5: Forest Degradation -->
+      <div class="section-card">
+        <h2>📉 Forest Degradation Model</h2>
+
+        <p>
+          The degradation rate parameter models the
+          <strong
+            >annual decline in existing forest carbon sink capacity</strong
+          >
+          due to:
+        </p>
+        <ul>
+          <li>Deforestation and forest conversion</li>
+          <li>Selective logging and forest degradation</li>
+          <li>Climate change impacts on forest health</li>
+        </ul>
+
+        <div class="formula-box">
+          <h4>Compound Degradation Formula</h4>
+          <div class="formula">
+            For each year i = 1 to N: Annual_Loss[i] = Remaining_Capacity ×
+            Degradation_Rate Remaining_Capacity -= Annual_Loss[i]
+            Cumulative_Loss += Annual_Loss[i]
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            With 2% annual degradation over 20 years:<br />
+            Cumulative loss ≈ 1 - (1 - 0.02)²⁰ ≈ <strong>33%</strong> of
+            original capacity
+          </p>
+        </div>
+
+        <div class="warning-box">
+          <strong>Important:</strong> This carbon loss from degrading existing
+          forests must be <em>replaced</em> by new forests, in addition to
+          achieving the original sequestration target.
+        </div>
+      </div>
+
+      <!-- Section 6: Limitations -->
+      <div class="section-card">
+        <h2>🔬 Limitations & Assumptions</h2>
+
+        <ul>
+          <li>
+            <strong>Tier 1 Methodology:</strong> Uses IPCC default values.
+            Country-specific data (Tier 2/3) would be more accurate.
+          </li>
+          <li>
+            <strong>Linear Growth Assumed:</strong> Real forest growth follows
+            sigmoid curves (slow start, rapid middle, plateau).
+          </li>
+          <li>
+            <strong>Uniform Rates:</strong> Actual sequestration varies by
+            species, soil, climate, and management.
+          </li>
+          <li>
+            <strong>No Permanence Discount:</strong> IPCC recommends discounting
+            for carbon that may be released later.
+          </li>
+          <li>
+            <strong>Simplified Degradation:</strong> Real degradation is
+            spatially heterogeneous and non-linear.
+          </li>
+        </ul>
+
+        <div class="info-box">
+          <strong>Recommendation:</strong> Use this calculator for scenario
+          exploration and policy discussion, not for precise national inventory
+          accounting. For official purposes, consult Indonesia's National Forest
+          Monitoring System (NFMS).
+        </div>
+      </div>
+
+      <!-- Section 7: References -->
+      <div class="section-card">
+        <h2>📚 References</h2>
+        <ul>
+          <li>
+            IPCC (2006). 2006 IPCC Guidelines for National Greenhouse Gas
+            Inventories, Volume 4: AFOLU
+          </li>
+          <li>IPCC (2014). 2013 Supplement to the 2006 Guidelines: Wetlands</li>
+          <li>
+            Republic of Indonesia (2022). Enhanced Nationally Determined
+            Contribution
+          </li>
+          <li>KLHK (2022). Indonesia Forest and Land Statistics</li>
+          <li>
+            Indonesia Mangrove Alliance (2022). State of Indonesia's Mangroves
+            Report
+          </li>
+        </ul>
+      </div>
+
+      <footer
+        style="text-align: center; padding: 2rem; color: var(--text-muted)"
+      >
+        <a href="/" class="back-link">← Back to Calculator</a>
+        <p style="margin-top: 1rem">
+          Indonesia Carbon Sequestration Calculator © 2024
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

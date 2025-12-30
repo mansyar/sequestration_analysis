@@ -11,7 +11,9 @@ from .models import (
     FeasibilityResult,
     ScenarioResult,
     ScenarioComparisonResult,
-    ScenarioType
+    ScenarioType,
+    RiskScenarioData,
+    MultiRiskChartData
 )
 from .constants import (
     SCENARIOS,
@@ -72,18 +74,43 @@ def calculate_sequestration(input_params: CalculatorInput) -> CalculatorResult:
     
     weighted_rate = (forest_fraction * effective_forest_rate) + (coastal_fraction * effective_coastal_rate)
     
-    # Step 5: Calculate annual and cumulative sequestration needs
+    # Step 5: Calculate carbon loss from existing forest degradation
+    # Existing forests are mature (at equilibrium) but losing capacity at degradation_rate% per year
+    # This represents deforestation, forest fires, climate stress, etc.
+    # We calculate cumulative loss over the time period
+    total_existing_area = input_params.forest_area_available + input_params.coastal_area_available
+    degradation_rate_decimal = input_params.degradation_rate / 100
+    
+    # Calculate cumulative carbon loss from degradation over the years
+    # Using compound degradation: each year loses degradation_rate% of remaining capacity
+    # Summed over all years
+    cumulative_degradation_loss = 0
+    remaining_capacity = 1.0  # Start at 100% capacity
+    for year in range(years):
+        annual_loss = remaining_capacity * degradation_rate_decimal
+        cumulative_degradation_loss += annual_loss
+        remaining_capacity -= annual_loss
+    
+    # Convert to carbon tonnes (use weighted rate as baseline for existing forest capacity)
+    degradation_loss_tonnes = cumulative_degradation_loss * total_existing_area * weighted_rate
+    
+    # Step 6: Calculate annual and cumulative sequestration needs
     # Convert MtCO2e to tCO2
     sequestration_target_tonnes = sequestration_target * 1_000_000
-    annual_sequestration_needed = sequestration_target_tonnes / years
     
-    # Step 6: Calculate total area needed
+    # New reforestation must:
+    # 1. Achieve the original sequestration target
+    # 2. Compensate for carbon lost from existing forest degradation
+    total_sequestration_needed = sequestration_target_tonnes + degradation_loss_tonnes
+    annual_sequestration_needed = total_sequestration_needed / years
+    
+    # Step 7: Calculate total area needed
     if weighted_rate > 0:
         total_area_needed = annual_sequestration_needed / weighted_rate
     else:
         total_area_needed = float('inf')
     
-    # Step 7: Calculate area by ecosystem type
+    # Step 8: Calculate area by ecosystem type
     forest_area_needed = total_area_needed * forest_fraction
     coastal_area_needed = total_area_needed * coastal_fraction
     
@@ -287,3 +314,72 @@ def generate_trajectory(input_params: CalculatorInput, result: "CalculatorResult
         scenario_areas=scenario_areas
     )
 
+
+RISK_SCENARIOS = [
+    {"name": "Optimistic", "risk_factor": 0, "color": "#22c55e"},  # Green
+    {"name": "Moderate", "risk_factor": 20, "color": "#f59e0b"},   # Amber
+    {"name": "Pessimistic", "risk_factor": 40, "color": "#ef4444"}  # Red
+]
+
+
+def generate_multi_risk_data(
+    base_input: CalculatorInput,
+    selected_scenarios: List[str] = None
+) -> MultiRiskChartData:
+    """
+    Generate chart data for multiple risk scenarios simultaneously.
+    
+    Args:
+        base_input: Base calculator input (risk_factor will be overridden)
+        selected_scenarios: List of scenario names to include ("Optimistic", "Moderate", "Pessimistic")
+                          If None, includes all scenarios
+    """
+    if selected_scenarios is None:
+        selected_scenarios = ["Optimistic", "Moderate", "Pessimistic"]
+    
+    scenarios_data = []
+    
+    for risk_scenario in RISK_SCENARIOS:
+        if risk_scenario["name"] not in selected_scenarios:
+            continue
+        
+        # Create input with this risk factor
+        scenario_input = base_input.model_copy()
+        scenario_input.risk_factor = risk_scenario["risk_factor"]
+        
+        # Calculate result for this scenario
+        result = calculate_sequestration(scenario_input)
+        
+        # Generate year-by-year trajectory
+        years = list(range(base_input.start_year, base_input.target_year + 1))
+        total_years = len(years) - 1
+        
+        area_trajectory = []
+        emissions_trajectory = []
+        
+        total_reduction = base_input.emissions_2030 - base_input.target_2050
+        
+        for i, year in enumerate(years):
+            # Linear progression for simplicity
+            progress = i / max(total_years, 1)
+            area_trajectory.append(result.total_area_needed * progress)
+            remaining = base_input.emissions_2030 - (total_reduction * progress)
+            emissions_trajectory.append(remaining)
+        
+        scenarios_data.append(RiskScenarioData(
+            name=risk_scenario["name"],
+            risk_factor=risk_scenario["risk_factor"],
+            color=risk_scenario["color"],
+            total_area_needed=result.total_area_needed,
+            forest_area_needed=result.forest_area_needed,
+            coastal_area_needed=result.coastal_area_needed,
+            years=years,
+            area_trajectory=area_trajectory,
+            emissions_trajectory=emissions_trajectory
+        ))
+    
+    return MultiRiskChartData(
+        scenarios=scenarios_data,
+        current_forest=base_input.forest_area_available,
+        current_coastal=base_input.coastal_area_available
+    )

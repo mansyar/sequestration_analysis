@@ -36,13 +36,13 @@ function initSliders() {
     });
   }
 
-  // Risk factor slider
-  const riskSlider = document.getElementById("risk_factor");
-  const riskValue = document.getElementById("riskFactorValue");
+  // Degradation rate slider
+  const degradationSlider = document.getElementById("degradation_rate");
+  const degradationValue = document.getElementById("degradationRateValue");
 
-  if (riskSlider && riskValue) {
-    riskSlider.addEventListener("input", function () {
-      riskValue.textContent = this.value + "%";
+  if (degradationSlider && degradationValue) {
+    degradationSlider.addEventListener("input", function () {
+      degradationValue.textContent = this.value + "%";
     });
   }
 }
