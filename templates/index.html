@@ -701,13 +701,11 @@
           <canvas id="emissionsChart"></canvas>
         </div>
         <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
-          <strong>How to Read:</strong> Shows projected net emissions (MtCO₂e)
-          after sequestration contribution from {{ defaults.start_year }} to {{
-          defaults.target_year }}. Lines converge toward the 540 MtCO₂e target.
-          Gap between lines represents additional risk buffer. Sequestration
-          contributes {{ defaults.sequestration_percent }}% of reduction;
-          remaining {{ 100 - defaults.sequestration_percent }}% from other
-          mitigation.
+          <strong>How to Read:</strong> The green line shows projected net
+          emissions (MtCO₂e) declining from {{ defaults.start_year }} to {{
+          defaults.target_year }}. The red dashed line marks the 540 MtCO₂e
+          target. Risk scenarios affect land area requirements (see other
+          charts), not this emissions pathway.
         </p>
       </div>
 
@@ -1636,21 +1634,33 @@
         }
       });
 
-      // 4. Emissions Trajectory Chart - Multi Risk
+      // 4. Emissions Trajectory Chart - Single pathway (risk affects area, not emissions target)
       window.dashboardCharts.emissions = new Chart(document.getElementById('emissionsChart'), {
         type: 'line',
         data: {
           labels: multiRiskData.scenarios[0]?.years || chartData.trajectory.years,
-          datasets: multiRiskData.scenarios.map(s => ({
-            label: s.name + ' (' + s.risk_factor + '% risk)',
-            data: s.emissions_trajectory,
-            borderColor: s.color,
-            backgroundColor: s.color + '22',
-            fill: s.name === 'Moderate' ? true : false,
-            tension: 0.3,
-            borderWidth: s.name === 'Moderate' ? 4 : 2,
-            pointRadius: s.name === 'Moderate' ? 4 : 2
-          }))
+          datasets: [
+            {
+              label: 'Projected Net Emissions',
+              data: multiRiskData.scenarios[0]?.emissions_trajectory || [],
+              borderColor: colors.forest,
+              backgroundColor: colors.forestLight,
+              fill: true,
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: 4,
+              pointBackgroundColor: colors.forest
+            },
+            {
+              label: '2050 Target (540 MtCO₂e)',
+              data: (multiRiskData.scenarios[0]?.years || []).map(() => 540),
+              borderColor: colors.danger,
+              borderWidth: 2,
+              borderDash: [8, 4],
+              fill: false,
+              pointRadius: 0
+            }
+          ]
         },
         options: {
           ...commonOptions,
