@@ -1,5 +1,5 @@
 # Multi-stage build for smaller, secure image
-FROM python:3.11-slim-bookworm@sha256:8f64a67e7e931d11d9e1f8b5e5a0c4f8f56a0e6e7e7f8a5d2c4e6d8a0b2c4e6f AS builder
+FROM python:3.11-slim-bookworm AS builder
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # Production stage
-FROM python:3.11-slim-bookworm@sha256:8f64a67e7e931d11d9e1f8b5e5a0c4f8f56a0e6e7e7f8a5d2c4e6d8a0b2c4e6f
+FROM python:3.11-slim-bookworm
 
 # Security: Create non-root user
 RUN groupadd --gid 1000 appgroup && \
@@ -44,7 +44,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/')" || exit 1
 
 # Security labels
-LABEL org.opencontainers.image.source="https://github.com/ansyar/carbon-sequestration-calculator"
+LABEL org.opencontainers.image.source="https://github.com/ansyar/sequestration-calculator"
 LABEL org.opencontainers.image.description="Indonesia Carbon Sequestration Calculator"
 LABEL org.opencontainers.image.licenses="MIT"
 
