@@ -14,12 +14,12 @@ from fastapi.templating import Jinja2Templates
 from typing import Annotated
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
-from calculator.models import CalculatorInput, ScenarioType
-from calculator.formulas import calculate_sequestration, compare_scenarios, generate_trajectory, generate_multi_risk_data
+from calculator.models import CalculatorInput
+from calculator.formulas import calculate_sequestration, generate_all_chart_data
 from calculator.constants import (
-    SCENARIOS,
     REFERENCES,
-    DEFAULT_EMISSIONS_2030,
+    DEFAULT_EMISSIONS_INITIAL,
+    DEFAULT_EMISSIONS_PEAK,
     DEFAULT_TARGET_2050,
     DEFAULT_SEQUESTRATION_PERCENT,
     INDONESIA_FOREST_AREA,
@@ -27,8 +27,14 @@ from calculator.constants import (
     FOREST_SEQUESTRATION_RATE,
     COASTAL_SEQUESTRATION_RATE,
     ROOT_TO_SHOOT_RATIO,
-    DEFAULT_START_YEAR,
-    DEFAULT_TARGET_YEAR
+    DEFAULT_INITIAL_YEAR,
+    DEFAULT_PEAK_YEAR,
+    DEFAULT_TARGET_YEAR,
+    DEFAULT_NEW_PLANTING_START_YEAR,
+    DEFAULT_NEW_PLANTING_FOREST_PERCENT,
+    DEFAULT_EXISTING_FOREST_STATUS,
+    EXISTING_FOREST_STATUS_OPTIONS,
+    SEQUESTRATION_DEGRADATION_RATE
 )
 
 # Initialize FastAPI app
@@ -56,34 +62,44 @@ templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 async def home(request: Request):
     """Render the main calculator page"""
     
-    # Default values for the form
+    # Default values for the form (3-point emission model)
     defaults = {
-        "emissions_2030": DEFAULT_EMISSIONS_2030,
+        # Emission Data Points
+        "emissions_initial": DEFAULT_EMISSIONS_INITIAL,
+        "emissions_peak": DEFAULT_EMISSIONS_PEAK,
         "target_2050": DEFAULT_TARGET_2050,
         "sequestration_percent": DEFAULT_SEQUESTRATION_PERCENT,
+        
+        # Year Parameters
+        "initial_year": DEFAULT_INITIAL_YEAR,
+        "peak_year": DEFAULT_PEAK_YEAR,
+        "target_year": DEFAULT_TARGET_YEAR,
+        "new_planting_start_year": DEFAULT_NEW_PLANTING_START_YEAR,
+        
+        # Existing Forest
         "forest_area_available": INDONESIA_FOREST_AREA,
         "coastal_area_available": INDONESIA_COASTAL_AREA,
-        "forest_percent": 80,
+        "existing_forest_status": DEFAULT_EXISTING_FOREST_STATUS,
+        "existing_forest_status_options": EXISTING_FOREST_STATUS_OPTIONS,
+        
+        # New Planting Allocation
+        "new_planting_forest_percent": DEFAULT_NEW_PLANTING_FOREST_PERCENT,
+        
+        # Sequestration Rates
         "forest_rate": FOREST_SEQUESTRATION_RATE,
         "coastal_rate": COASTAL_SEQUESTRATION_RATE,
         "root_to_shoot_ratio": ROOT_TO_SHOOT_RATIO,
-        "start_year": DEFAULT_START_YEAR,
-        "target_year": DEFAULT_TARGET_YEAR,
         "include_below_ground": False,
-        "risk_factor": 0,
-        "degradation_rate": 2.0
+        "degradation_rate": SEQUESTRATION_DEGRADATION_RATE * 100.0,
+        
+        # Risk Factor
+        "risk_factor": 0
     }
     
-    # Default selected risk scenarios
-    selected_risk_scenarios = ["Optimistic", "Moderate", "Pessimistic"]
-    defaults["selected_risk_scenarios"] = selected_risk_scenarios
-    
     # Calculate default result
-    default_input = CalculatorInput(**{k: v for k, v in defaults.items() if k != "selected_risk_scenarios"})
+    default_input = CalculatorInput()
     result = calculate_sequestration(default_input)
-    scenarios = compare_scenarios(default_input)
-    chart_data = generate_trajectory(default_input, result)
-    multi_risk_data = generate_multi_risk_data(default_input, selected_risk_scenarios)
+    chart_data = generate_all_chart_data(default_input)
     
     return templates.TemplateResponse(
         "index.html",
@@ -91,10 +107,7 @@ async def home(request: Request):
             "request": request,
             "defaults": defaults,
             "result": result,
-            "scenarios": scenarios,
-            "scenario_presets": SCENARIOS,
-            "chart_data": chart_data.model_dump(),
-            "multi_risk_data": multi_risk_data.model_dump()
+            "chart_data": chart_data.model_dump()
         }
     )
 
@@ -102,69 +115,87 @@ async def home(request: Request):
 @app.post("/calculate", response_class=HTMLResponse)
 async def calculate(
     request: Request,
-    emissions_2030: Annotated[float, Form()],
+    # Emission Data Points (3-point model)
+    emissions_initial: Annotated[float, Form()],
+    emissions_peak: Annotated[float, Form()],
     target_2050: Annotated[float, Form()],
     sequestration_percent: Annotated[float, Form()],
+    
+    # Year Parameters
+    initial_year: Annotated[int, Form()],
+    peak_year: Annotated[int, Form()],
+    target_year: Annotated[int, Form()],
+    new_planting_start_year: Annotated[int, Form()],
+    
+    # Existing Forest
     forest_area_available: Annotated[float, Form()],
     coastal_area_available: Annotated[float, Form()],
-    forest_percent: Annotated[float, Form()],
-    forest_rate: Annotated[float, Form()],
-    coastal_rate: Annotated[float, Form()],
-    root_to_shoot_ratio: Annotated[float, Form()],
-    start_year: Annotated[int, Form()],
-    target_year: Annotated[int, Form()],
+    existing_forest_status: Annotated[str, Form()] = "mixed",
+    
+    # New Planting Allocation
+    new_planting_forest_percent: Annotated[float, Form()] = 80,
+    
+    # Sequestration Rates
+    forest_rate: Annotated[float, Form()] = FOREST_SEQUESTRATION_RATE,
+    coastal_rate: Annotated[float, Form()] = COASTAL_SEQUESTRATION_RATE,
+    root_to_shoot_ratio: Annotated[float, Form()] = ROOT_TO_SHOOT_RATIO,
     include_below_ground: Annotated[bool, Form()] = False,
+    
+    # Risk Factor
     risk_factor: Annotated[float, Form()] = 0,
-    degradation_rate: Annotated[float, Form()] = 2.0,
-    scenario: Annotated[str, Form()] = "custom"
+    
+    # Degradation Rate (from range slider)
+    degradation_rate: Annotated[float, Form()] = SEQUESTRATION_DEGRADATION_RATE * 100.0
 ):
     """Process calculation and return results"""
     
     # Build input model
     calc_input = CalculatorInput(
-        emissions_2030=emissions_2030,
+        emissions_initial=emissions_initial,
+        emissions_peak=emissions_peak,
         target_2050=target_2050,
         sequestration_percent=sequestration_percent,
+        initial_year=initial_year,
+        peak_year=peak_year,
+        target_year=target_year,
+        new_planting_start_year=new_planting_start_year,
         forest_area_available=forest_area_available,
         coastal_area_available=coastal_area_available,
-        forest_percent=forest_percent,
+        existing_forest_status=existing_forest_status,
+        new_planting_forest_percent=new_planting_forest_percent,
         forest_rate=forest_rate,
         coastal_rate=coastal_rate,
         root_to_shoot_ratio=root_to_shoot_ratio,
-        start_year=start_year,
-        target_year=target_year,
         include_below_ground=include_below_ground,
         risk_factor=risk_factor,
-        degradation_rate=degradation_rate,
-        scenario=ScenarioType(scenario) if scenario != "custom" else ScenarioType.CUSTOM
+        degradation_rate=degradation_rate
     )
     
     # Calculate results
     result = calculate_sequestration(calc_input)
-    scenarios = compare_scenarios(calc_input)
-    chart_data = generate_trajectory(calc_input, result)
-    
-    # Default all risk scenarios selected for multi-risk chart
-    selected_risk_scenarios = ["Optimistic", "Moderate", "Pessimistic"]
-    multi_risk_data = generate_multi_risk_data(calc_input, selected_risk_scenarios)
+    chart_data = generate_all_chart_data(calc_input)
     
     # Build defaults from current input
     defaults = {
-        "emissions_2030": emissions_2030,
+        "emissions_initial": emissions_initial,
+        "emissions_peak": emissions_peak,
         "target_2050": target_2050,
         "sequestration_percent": sequestration_percent,
+        "initial_year": initial_year,
+        "peak_year": peak_year,
+        "target_year": target_year,
+        "new_planting_start_year": new_planting_start_year,
         "forest_area_available": forest_area_available,
         "coastal_area_available": coastal_area_available,
-        "forest_percent": forest_percent,
+        "existing_forest_status": existing_forest_status,
+        "existing_forest_status_options": EXISTING_FOREST_STATUS_OPTIONS,
+        "new_planting_forest_percent": new_planting_forest_percent,
         "forest_rate": forest_rate,
         "coastal_rate": coastal_rate,
         "root_to_shoot_ratio": root_to_shoot_ratio,
-        "start_year": start_year,
-        "target_year": target_year,
         "include_below_ground": include_below_ground,
         "risk_factor": risk_factor,
-        "degradation_rate": degradation_rate,
-        "selected_risk_scenarios": selected_risk_scenarios
+        "degradation_rate": degradation_rate
     }
     
     return templates.TemplateResponse(
@@ -173,10 +204,7 @@ async def calculate(
             "request": request,
             "defaults": defaults,
             "result": result,
-            "scenarios": scenarios,
-            "scenario_presets": SCENARIOS,
-            "chart_data": chart_data.model_dump(),
-            "multi_risk_data": multi_risk_data.model_dump()
+            "chart_data": chart_data.model_dump()
         }
     )
 
@@ -209,8 +237,12 @@ async def get_defaults():
     """API endpoint to get default IPCC values"""
     return {
         "emissions": {
-            "baseline_2030": DEFAULT_EMISSIONS_2030,
+            "initial": DEFAULT_EMISSIONS_INITIAL,
+            "initial_year": DEFAULT_INITIAL_YEAR,
+            "peak": DEFAULT_EMISSIONS_PEAK,
+            "peak_year": DEFAULT_PEAK_YEAR,
             "target_2050": DEFAULT_TARGET_2050,
+            "target_year": DEFAULT_TARGET_YEAR,
             "sequestration_percent": DEFAULT_SEQUESTRATION_PERCENT
         },
         "areas": {
@@ -222,17 +254,15 @@ async def get_defaults():
             "coastal_tco2_ha_yr": COASTAL_SEQUESTRATION_RATE,
             "root_to_shoot_ratio": ROOT_TO_SHOOT_RATIO
         },
-        "scenarios": {
-            name: {
-                "name": s.name,
-                "forest_percent": s.forest_percent * 100,
-                "coastal_percent": s.coastal_percent * 100,
-                "include_below_ground": s.include_below_ground,
-                "description": s.description
-            }
-            for name, s in SCENARIOS.items()
-        }
+        "new_planting": {
+            "start_year": DEFAULT_NEW_PLANTING_START_YEAR,
+            "forest_percent": DEFAULT_NEW_PLANTING_FOREST_PERCENT
+        },
+        "degradation_rate": SEQUESTRATION_DEGRADATION_RATE * 100.0,
+        "existing_forest_status_options": EXISTING_FOREST_STATUS_OPTIONS,
+        "default_existing_forest_status": DEFAULT_EXISTING_FOREST_STATUS
     }
+
 
 
 @app.get("/api/references")

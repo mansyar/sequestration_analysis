@@ -6,42 +6,64 @@ Input validation and output structuring for the API
 
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from enum import Enum
-
-
-class ScenarioType(str, Enum):
-    """Available scenario presets"""
-    CONSERVATIVE = "conservative"
-    BALANCED = "balanced"
-    COASTAL_OPTIMIZED = "coastal_optimized"
-    FULL_BIOMASS = "full_biomass"
-    CUSTOM = "custom"
 
 
 class CalculatorInput(BaseModel):
     """Input parameters for sequestration calculation"""
     
-    # Emission targets
-    emissions_2030: float = Field(
+    # Emission Data Points (3-point model)
+    emissions_initial: float = Field(
+        default=1200,
+        ge=0,
+        le=5000,
+        description="Initial emissions (MtCO2e)"
+    )
+    emissions_peak: float = Field(
         default=1244,
         ge=0,
         le=5000,
-        description="Baseline emissions in 2030 (MtCO2e)"
+        description="Peak emissions (MtCO2e)"
     )
     target_2050: float = Field(
         default=540,
         ge=0,
         le=5000,
-        description="Target emissions by 2050 (MtCO2e)"
+        description="Target emissions by target year (MtCO2e)"
     )
     sequestration_percent: float = Field(
         default=60,
         ge=0,
         le=100,
-        description="Percentage of reduction from sequestration"
+        description="Percentage of reduction from sequestration (FOLU policy)"
     )
     
-    # Area allocation
+    # Year parameters
+    initial_year: int = Field(
+        default=2023,
+        ge=2000,
+        le=2100,
+        description="Initial emission year"
+    )
+    peak_year: int = Field(
+        default=2030,
+        ge=2000,
+        le=2100,
+        description="Peak emission year"
+    )
+    target_year: int = Field(
+        default=2050,
+        ge=2025,
+        le=2100,
+        description="Target year for emissions goal"
+    )
+    new_planting_start_year: int = Field(
+        default=2023,
+        ge=2000,
+        le=2100,
+        description="Year to start new planting"
+    )
+    
+    # Existing forest area allocation
     forest_area_available: float = Field(
         default=120_343_230,
         ge=0,
@@ -52,22 +74,30 @@ class CalculatorInput(BaseModel):
         ge=0,
         description="Available coastal/mangrove area in hectares"
     )
-    forest_percent: float = Field(
+    
+    # Existing forest carbon status
+    existing_forest_status: str = Field(
+        default="mixed",
+        description="Carbon status of existing forests: 'mature' (0%), 'mixed' (50%), or 'active' (100%)"
+    )
+    
+    # New planting allocation (forest vs coastal)
+    new_planting_forest_percent: float = Field(
         default=80,
         ge=0,
         le=100,
-        description="Percentage of sequestration from forest"
+        description="Percentage of new planting allocated to forest"
     )
     
     # Sequestration rates (IPCC Tier 1 defaults)
     forest_rate: float = Field(
-        default=11.0,
+        default=6.9,
         ge=1,
         le=50,
         description="Forest sequestration rate (tCO2/ha/year)"
     )
     coastal_rate: float = Field(
-        default=13.0,
+        default=6.6,
         ge=1,
         le=50,
         description="Coastal sequestration rate (tCO2/ha/year)"
@@ -83,40 +113,20 @@ class CalculatorInput(BaseModel):
         description="Root-to-shoot ratio for below-ground biomass"
     )
     
-    # Time parameters
-    start_year: int = Field(
-        default=2030,
-        ge=2020,
-        le=2100,
-        description="Start year for calculation"
-    )
-    target_year: int = Field(
-        default=2050,
-        ge=2025,
-        le=2100,
-        description="Target year for emissions goal"
-    )
-    
-    # Risk factor for disasters/disturbances
+    # Risk factor for new plantings (disasters/disturbances)
     risk_factor: float = Field(
         default=0,
         ge=0,
         le=50,
-        description="Risk buffer % (fires, pests, drought) - reduces effective sequestration"
+        description="Risk buffer % for new plantings (fires, pests, drought)"
     )
-    
-    # Annual degradation rate of existing forests
+
+    # Annual sequestration degradation for existing forests
     degradation_rate: float = Field(
         default=2.0,
-        ge=0,
-        le=10,
-        description="Annual % decline in existing forest sequestration capacity"
-    )
-    
-    # Scenario selection
-    scenario: ScenarioType = Field(
-        default=ScenarioType.BALANCED,
-        description="Predefined scenario to use"
+        ge=0.0,
+        le=10.0,
+        description="Annual loss of existing forest sequestration capacity (%)"
     )
 
 
@@ -252,3 +262,67 @@ class MultiRiskChartData(BaseModel):
     roadmap: RoadmapData
     current_forest: float
     current_coastal: float
+
+
+# =============================================================================
+# New Chart Data Models (for overhauled charts)
+# =============================================================================
+
+class ExistingForestSequestrationChartData(BaseModel):
+    """Chart 1: Sequestration of existing forest vs year (MtCO2e/yr)"""
+    years: List[int]
+    total_sequestration_mt: List[float]  # MtCO2e/year
+    base_rate: float  # Starting rate (tCO2/ha/yr) before degradation
+    activity_factor: float  # 0, 0.5, or 1.0 based on existing_forest_status
+
+
+class GrossEmissionChartData(BaseModel):
+    """Chart 2: Gross emissions with data points, interpolation, and policy line"""
+    years: List[int]
+    # Sparse data points for bar chart (null for non-data-point years)
+    sparse_data_points: List[Optional[float]]
+    # Data points (only 3: initial, peak, target)
+    data_point_years: List[int]
+    data_point_values: List[float]
+    # Interpolated line (all years)
+    interpolated_emissions: List[float]
+    # Policy target line (sequestration contribution)
+    policy_target_line: List[float]  # sequestration_percent of emissions
+
+
+class CarbonBalanceChartData(BaseModel):
+    """Chart 3: Carbon balance (gross emissions vs existing forest sequestration)"""
+    years: List[int]
+    gross_emissions: List[float]  # MtCO2e (positive)
+    existing_forest_sequestration: List[float]  # MtCO2e (negative)
+    net_balance: List[float]  # gross - existing sequestration
+
+
+class NetZeroBalanceChartData(BaseModel):
+    """Figure 6: Net Carbon Balance including new planting sequestration"""
+    years: List[int]
+    gross_emissions: List[float]
+    existing_forest_sequestration: List[float]
+    new_planting_sequestration: List[float]
+    net_balance: List[float]
+
+
+class NewPlantingChartData(BaseModel):
+    """Chart 4a & 4b: New planting area requirements"""
+    years: List[int]
+    annual_planting_area: List[float]  # ha/year
+    cumulative_planted_area: List[float]  # ha total
+    cumulative_sequestration_gap: List[float]  # What new plantings need to offset
+    target_reached_year: Optional[int] = None  # Year when target is reached (may exceed target_year)
+    target_emission_reduction: float  # Total emission reduction target for new plantings
+    is_target_achieved: bool  # Whether target is achieved within projection
+    annual_new_sequestration_mt: List[float]  # Annual absorption from new plantings (MtCO2e/yr)
+
+
+class AllChartData(BaseModel):
+    """Complete chart data for all 5 new charts"""
+    existing_forest_sequestration: ExistingForestSequestrationChartData
+    gross_emissions: GrossEmissionChartData
+    carbon_balance: CarbonBalanceChartData
+    new_planting: NewPlantingChartData
+    net_zero_balance: NetZeroBalanceChartData

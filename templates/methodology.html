@@ -231,9 +231,9 @@
         </div>
 
         <div class="formula-box">
-          <h4>Step 5: Account for Forest Degradation Loss</h4>
+          <h4>Step 5: Existing Forest sink (MtCO₂e/yr)</h4>
           <div class="formula">
-            Degradation_Loss = Existing_Area × Cumulative_Loss_Factor × Rate
+            Sink_Existing(y) = Area_Existing × Rate_Weighted × Maturity(y)
           </div>
           <p
             style="
@@ -242,16 +242,16 @@
               color: var(--text-muted);
             "
           >
-            With 2% annual degradation over 20 years, ~33% of existing forest
-            capacity is lost. New forests must compensate for this loss.
+            Maturity(y) is a degradation factor (e.g., (1-2%)^y). The total
+            contribution is the sum of annual fluxes over the period.
           </p>
         </div>
 
         <div class="formula-box">
-          <h4>Step 6: Calculate Total Area Needed</h4>
+          <h4>Step 6: New Planting Area (Steady Effort Model)</h4>
           <div class="formula">
-            Total_Area = (Sequestration_Target + Degradation_Loss) /
-            (Weighted_Rate × Years)
+            Total_Area_Target = (Total_Reduction × Policy% -
+            Cumulative_Existing_Sinks) / Average_Lifetime_Yield
           </div>
           <p
             style="
@@ -260,8 +260,26 @@
               color: var(--text-muted);
             "
           >
-            Final calculation of hectares needed for new
-            reforestation/restoration.
+            The calculator spreads this total area into steady annual
+            installments from the start year to 2050 to ensure manageable
+            implementation.
+          </p>
+        </div>
+
+        <div class="formula-box">
+          <h4>Step 7: Final Net Carbon Balance (Figure 6)</h4>
+          <div class="formula">
+            Net_Balance(y) = Emissions(y) - Sink_Existing(y) - Σ Cohort_Sinks(y)
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            Where Cohort_Sinks are calculated based on the planting year and the
+            biological growth lag (Sigmoid maturity curve).
           </p>
         </div>
       </div>
@@ -662,15 +680,23 @@
             Country-specific data (Tier 2/3) would be more accurate.
           </li>
           <li>
-            <strong>Biological Growth (Sigmoid):</strong> This calculator now
-            models sequestration rate for new forests using a biological Sigmoid
-            curve, accounting for the "Establishment" phase and the transition
-            to "Full-vigour" growth (as described by Chapin et al., 2002).
+            <strong>Biological Growth (Sigmoid Curve):</strong> Sequestration
+            productivity is modeled using the sigmoid function:
+            <br />
+            <code>Maturity = 0.8 / (1 + exp(-0.5 * (years - 10)))</code>
+            <br />
+            This accounts for the 5-year establishment lag and rapid growth
+            phase typical of tropical reforestation (Chapin et al., 2002).
           </li>
           <li>
-            <strong>Sequestration Flux:</strong> Sequestration is modeled as a
-            flux (rate) which peaks as the forest stand enters maturity, rather
-            than a simple linear constant.
+            <strong>Cohort Integration:</strong> Unlike simplified models, this
+            calculator uses a summation of sinks across all planting cohorts to
+            determine the real-time net balance.
+          </li>
+          <li>
+            <strong>Flux vs. Stock:</strong> The model focuses on the
+            <em>annual flux</em> of carbon to align with NDC reporting periods
+            and net-zero target dates.
           </li>
           <li>
             <strong>No Permanence Discount:</strong> IPCC recommends discounting

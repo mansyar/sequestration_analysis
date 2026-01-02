@@ -37,68 +37,59 @@ FOREST_RATE_FULL_BIOMASS = FOREST_SEQUESTRATION_RATE * (1 + ROOT_TO_SHOOT_RATIO)
 COASTAL_RATE_FULL_BIOMASS = COASTAL_SEQUESTRATION_RATE * (1 + ROOT_TO_SHOOT_RATIO)  # ~9.04
 
 # =============================================================================
-# Indonesia Baseline Data
+# Indonesia Baseline Data - 3-Point Emission Model
 # =============================================================================
 
 # Current land areas (hectares)
 INDONESIA_FOREST_AREA = 120_343_230  # Hutan daratan
 INDONESIA_COASTAL_AREA = 5_321_321   # Hutan perairan/coastal
 
-# Emission targets (MtCO2e)
-DEFAULT_EMISSIONS_2023 = 1200  # Baseline 2023 emissions
-DEFAULT_EMISSIONS_2030 = 1244  # Baseline emissions peak
-DEFAULT_TARGET_2050 = 540      # Target emissions by 2050
+# Emission Data Points (MtCO2e) - 3-point trajectory
+DEFAULT_EMISSIONS_INITIAL = 1200  # Initial emissions (2023 baseline)
+DEFAULT_EMISSIONS_PEAK = 1244     # Peak emissions (2030)
+DEFAULT_TARGET_2050 = 540         # Target emissions by 2050
+
+# Year Parameters
+DEFAULT_INITIAL_YEAR = 2023
+DEFAULT_PEAK_YEAR = 2030
+DEFAULT_TARGET_YEAR = 2050
+DEFAULT_NEW_PLANTING_START_YEAR = 2023  # Same as initial year
 
 # Policy parameters
-DEFAULT_SEQUESTRATION_PERCENT = 60  # 60% from sequestration
+DEFAULT_SEQUESTRATION_PERCENT = 60  # 60% from sequestration (FOLU policy)
 
-# Time parameters
-DEFAULT_START_YEAR = 2030
-DEFAULT_TARGET_YEAR = 2050
+# Sequestration Rate Degradation (for existing forests)
+SEQUESTRATION_DEGRADATION_RATE = 0.02  # 2% annual degradation
+
+# New Planting Allocation (forest vs coastal ratio)
+DEFAULT_NEW_PLANTING_FOREST_PERCENT = 80
+DEFAULT_NEW_PLANTING_COASTAL_PERCENT = 20
 
 # =============================================================================
-# Scenario Presets
+# Existing Forest Carbon Status Options
 # =============================================================================
 
-@dataclass
-class ScenarioPreset:
-    """Predefined scenario configuration"""
-    name: str
-    forest_percent: float
-    coastal_percent: float
-    include_below_ground: bool
-    description: str
-
-SCENARIOS: Dict[str, ScenarioPreset] = {
-    "conservative": ScenarioPreset(
-        name="Conservative",
-        forest_percent=0.90,
-        coastal_percent=0.10,
-        include_below_ground=False,
-        description="Reflects current area ratio (~95:5)"
-    ),
-    "balanced": ScenarioPreset(
-        name="Balanced",
-        forest_percent=0.80,
-        coastal_percent=0.20,
-        include_below_ground=False,
-        description="Higher coastal efficiency"
-    ),
-    "coastal_optimized": ScenarioPreset(
-        name="Coastal-Optimized",
-        forest_percent=0.70,
-        coastal_percent=0.30,
-        include_below_ground=False,
-        description="Maximum mangrove potential"
-    ),
-    "full_biomass": ScenarioPreset(
-        name="Full Biomass",
-        forest_percent=0.80,
-        coastal_percent=0.20,
-        include_below_ground=True,
-        description="+37% sequestration (R:S ratio)"
-    )
+# Existing forests may be at carbon equilibrium (mature) or actively absorbing (young/regenerating)
+# Reference: Odum (1969), Luyssaert et al. (2008) - Mature forests are near carbon equilibrium
+EXISTING_FOREST_STATUS_OPTIONS = {
+    "mature": {"factor": 0.0, "label": "Mature (0% - Carbon Equilibrium)"},
+    "mixed": {"factor": 0.5, "label": "Mixed (50% - Partial Absorption)"},
+    "active": {"factor": 1.0, "label": "Active (100% - Full Absorption)"}
 }
+DEFAULT_EXISTING_FOREST_STATUS = "mixed"  # Changed from "mature" to "mixed"
+
+# =============================================================================
+# New Planting Maturity Curve (IPCC-based)
+# =============================================================================
+# Reference: Chapin et al. (2002), Baldocchi (2008), IPCC 2006
+
+MATURITY_PHASES = {
+    "establishment": {"start": 0, "end": 5, "capacity": 0.0},      # 0% capacity
+    "rapid_growth": {"start": 5, "end": 15, "capacity": 0.8},      # Sigmoid to 80%
+    "full_maturity": {"start": 15, "end": 40, "capacity": 1.0},    # 100% capacity
+    "degradation_start": 40                                         # Apply 2% degradation after 40 years
+}
+
 
 # =============================================================================
 # Academic References

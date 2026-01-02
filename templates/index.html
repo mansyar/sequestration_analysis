@@ -38,69 +38,106 @@
         <div class="grid grid-2">
           <!-- Left Column: Inputs -->
           <div>
-            <!-- Scenario Selection -->
+            <!-- Time Parameters -->
             <div class="card">
               <div class="card-header">
-                <span class="icon">🎯</span>
-                <h2>Quick Scenarios</h2>
-              </div>
-              <div class="btn-group">
-                {% for key, scenario in scenario_presets.items() %}
-                <button
-                  type="button"
-                  class="scenario-btn"
-                  data-scenario="{{ key }}"
-                  data-forest="{{ scenario.forest_percent * 100 }}"
-                  data-below-ground="{{ 'true' if scenario.include_below_ground else 'false' }}"
-                  title="{{ scenario.description }}"
-                >
-                  {{ scenario.name }}
-                </button>
-                {% endfor %}
-              </div>
-              <input
-                type="hidden"
-                name="scenario"
-                id="scenarioInput"
-                value="custom"
-              />
-            </div>
-
-            <!-- Emission Targets -->
-            <div class="card">
-              <div class="card-header">
-                <span class="icon">🏭</span>
-                <h2>Emission Targets</h2>
+                <span class="icon">📅</span>
+                <h2>Time Parameters</h2>
               </div>
               <div class="grid grid-2">
                 <div class="form-group">
-                  <label for="emissions_2030">Baseline 2030 (MtCO₂e)</label>
+                  <label for="initial_year">Initial Year</label>
                   <input
                     type="number"
-                    id="emissions_2030"
-                    name="emissions_2030"
-                    value="{{ defaults.emissions_2030 }}"
-                    step="1"
-                    min="0"
-                    max="5000"
+                    id="initial_year"
+                    name="initial_year"
+                    value="{{ defaults.initial_year }}"
+                    min="2000"
+                    max="2100"
                   />
                 </div>
                 <div class="form-group">
-                  <label for="target_2050">Target 2050 (MtCO₂e)</label>
+                  <label for="peak_year">Peak Year</label>
+                  <input
+                    type="number"
+                    id="peak_year"
+                    name="peak_year"
+                    value="{{ defaults.peak_year }}"
+                    min="2000"
+                    max="2100"
+                  />
+                </div>
+              </div>
+              <div class="grid grid-2">
+                <div class="form-group">
+                  <label for="target_year">Target Year</label>
+                  <input
+                    type="number"
+                    id="target_year"
+                    name="target_year"
+                    value="{{ defaults.target_year }}"
+                    min="2025"
+                    max="2100"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="new_planting_start_year">Planting Start Year</label>
+                  <input
+                    type="number"
+                    id="new_planting_start_year"
+                    name="new_planting_start_year"
+                    value="{{ defaults.new_planting_start_year }}"
+                    min="2000"
+                    max="2100"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Emission Data Points (3-Point Model) -->
+            <div class="card">
+              <div class="card-header">
+                <span class="icon">🏭</span>
+                <h2>Emission Trajectory (MtCO₂e)</h2>
+              </div>
+              <div class="grid grid-3">
+                <div class="form-group">
+                  <label for="emissions_initial">Initial Value</label>
+                  <input
+                    type="number"
+                    id="emissions_initial"
+                    name="emissions_initial"
+                    value="{{ defaults.emissions_initial }}"
+                    step="any"
+                    min="0"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="emissions_peak">Peak Value</label>
+                  <input
+                    type="number"
+                    id="emissions_peak"
+                    name="emissions_peak"
+                    value="{{ defaults.emissions_peak }}"
+                    step="any"
+                    min="0"
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="target_2050">Target Value</label>
                   <input
                     type="number"
                     id="target_2050"
                     name="target_2050"
                     value="{{ defaults.target_2050 }}"
-                    step="1"
+                    step="any"
                     min="0"
-                    max="5000"
                   />
                 </div>
               </div>
               <div class="form-group">
                 <label for="sequestration_percent">
-                  Sequestration Policy:
+                  Sequestration Policy (FOLU %):
                   <span class="range-value" id="seqPercentValue"
                     >{{ defaults.sequestration_percent }}%</span
                   >
@@ -117,55 +154,63 @@
               </div>
             </div>
 
-            <!-- Current Indonesia Forest Areas -->
+            <!-- Forest Area & Allocation -->
             <div class="card">
               <div class="card-header">
                 <span class="icon">🌳</span>
-                <h2>Current Indonesia Forest Areas</h2>
+                <h2>Forest Area & Allocation</h2>
               </div>
               <div class="grid grid-2">
                 <div class="form-group">
-                  <label for="forest_area_available">Land Forest (ha)</label>
+                  <label for="forest_area_available">Existing Land Forest Area (ha)</label>
                   <input
                     type="number"
                     id="forest_area_available"
                     name="forest_area_available"
                     value="{{ defaults.forest_area_available }}"
-                    step="1000"
+                    step="any"
                   />
                 </div>
                 <div class="form-group">
-                  <label for="coastal_area_available"
-                    >Coastal Forest (ha)</label
-                  >
+                  <label for="coastal_area_available">Existing Coastal Forest Area (ha)</label>
                   <input
                     type="number"
                     id="coastal_area_available"
                     name="coastal_area_available"
                     value="{{ defaults.coastal_area_available }}"
-                    step="1000"
+                    step="any"
                   />
                 </div>
               </div>
               <div class="form-group">
-                <label for="forest_percent">
-                  Sequestration Allocation (Forest/Coastal):
+                <label for="new_planting_forest_percent">
+                  New Planting Allocation (Forest %):
                   <span class="range-value" id="forestPercentValue"
-                    >{{ defaults.forest_percent|int }}% / {{ (100 -
-                    defaults.forest_percent)|int }}%</span
+                    >{{ defaults.new_planting_forest_percent|int }}% / {{ (100 -
+                    defaults.new_planting_forest_percent)|int }}%</span
                   >
                 </label>
                 <input
                   type="range"
-                  id="forest_percent"
-                  name="forest_percent"
-                  value="{{ defaults.forest_percent }}"
+                  id="new_planting_forest_percent"
+                  name="new_planting_forest_percent"
+                  value="{{ defaults.new_planting_forest_percent }}"
                   min="0"
                   max="100"
                   step="5"
                 />
               </div>
+              <div class="form-group">
+                <label for="existing_forest_status">Existing Forest Carbon Status</label>
+                <select id="existing_forest_status" name="existing_forest_status" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary);">
+                  <option value="mature" {% if defaults.existing_forest_status == 'mature' %}selected{% endif %}>🌳 Mature (0% - Carbon Equilibrium)</option>
+                  <option value="mixed" {% if defaults.existing_forest_status == 'mixed' %}selected{% endif %}>🌲 Mixed (50% - Partial Absorption)</option>
+                  <option value="active" {% if defaults.existing_forest_status == 'active' %}selected{% endif %}>🌱 Active (100% - Full Absorption)</option>
+                </select>
+              </div>
             </div>
+
+
 
             <!-- Sequestration Rates -->
             <div class="card">
@@ -181,9 +226,9 @@
                     id="forest_rate"
                     name="forest_rate"
                     value="{{ defaults.forest_rate }}"
-                    step="0.5"
-                    min="1"
-                    max="50"
+                    step="any"
+                    min="0"
+                    max="100"
                   />
                 </div>
                 <div class="form-group">
@@ -193,9 +238,9 @@
                     id="coastal_rate"
                     name="coastal_rate"
                     value="{{ defaults.coastal_rate }}"
-                    step="0.5"
-                    min="1"
-                    max="50"
+                    step="any"
+                    min="0"
+                    max="100"
                   />
                 </div>
               </div>
@@ -227,7 +272,7 @@
                   id="root_to_shoot_ratio"
                   name="root_to_shoot_ratio"
                   value="{{ defaults.root_to_shoot_ratio }}"
-                  step="0.01"
+                  step="any"
                   min="0.1"
                   max="1"
                 />
@@ -371,166 +416,134 @@
               </div>
             </div>
 
-            <!-- Time Parameters -->
-            <div class="card">
-              <div class="card-header">
-                <span class="icon">📅</span>
-                <h2>Time Parameters</h2>
-              </div>
-              <div class="grid grid-2">
-                <div class="form-group">
-                  <label for="start_year">Start Year</label>
-                  <input
-                    type="number"
-                    id="start_year"
-                    name="start_year"
-                    value="{{ defaults.start_year }}"
-                    min="2020"
-                    max="2100"
-                  />
-                </div>
-                <div class="form-group">
-                  <label for="target_year">Target Year</label>
-                  <input
-                    type="number"
-                    id="target_year"
-                    name="target_year"
-                    value="{{ defaults.target_year }}"
-                    min="2025"
-                    max="2100"
-                  />
-                </div>
-              </div>
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+              <button type="submit" class="calculate-btn" style="flex: 2;">
+                🚀 Calculate Sequestration
+              </button>
+              <button type="button" id="resetBtn" class="scenario-btn" style="flex: 1; margin: 0; background: var(--bg-secondary); border: 1px solid var(--border-color);">
+                🔄 Reset
+              </button>
             </div>
 
-            <button
-              type="submit"
-              class="btn btn-primary"
-              style="width: 100%; padding: 1rem"
-            >
-              🧮 Calculate Required Area
-            </button>
           </div>
 
           <!-- Right Column: Results -->
           <div>
-            <!-- National Roadmap Strategy (IPCC Style) -->
+            <!-- Summary Results -->
             <div class="card mb-6">
               <div class="card-header">
-                <span class="icon">📈</span>
-                <h2>National Net Zero Roadmap (2023-2050)</h2>
-              </div>
-              <div class="chart-container" style="height: 350px">
-                <canvas id="roadmapChart"></canvas>
-              </div>
-              <div
-                class="mt-4 p-4 bg-gray-50 border-l-4 border-emerald-500 text-sm"
-              >
-                <p>
-                  <strong>How to Read:</strong> This IPCC-style wedge chart
-                  shows Indonesia's path to net-zero.
-                  <strong>Grey area</strong> = gross emissions declining from
-                  1,200 MtCO₂e (2023) to 540 MtCO₂e (2050).
-                  <strong>Dark green</strong> = existing forest capacity
-                  (decaying at {{ defaults.degradation_rate }}%/year due to
-                  deforestation). <strong>Light green</strong> = new restoration
-                  using cohort-based planting with 5-year growth lag.
-                  <strong>Purple</strong> = other mitigation ({{ 100 -
-                  defaults.sequestration_percent }}% from energy, transport,
-                  industry). <strong>Blue line</strong> = net carbon balance
-                  (should approach zero by 2050).
-                </p>
-              </div>
-            </div>
-
-            <!-- Summary Results -->
-            <div class="card">
-              <div class="card-header">
-                <span class="icon">📊</span>
-                <h2>Results Summary</h2>
-                {% if result.overall_feasible %}
-                <span class="badge badge-success">✓ Feasible</span>
-                {% else %}
-                <span class="badge badge-danger">✗ Not Feasible</span>
-                {% endif %}
+                <h2>Analysis Summary</h2>
               </div>
               <div class="result-grid">
                 <div class="result-item">
                   <div class="value">
                     {{ "{:,.0f}".format(result.total_reduction_needed) }}
                   </div>
-                  <div class="label">Total Reduction (MtCO₂e)</div>
+                  <div class="label">Net Reduction (MtCO₂e)</div>
                 </div>
                 <div class="result-item">
                   <div class="value">
                     {{ "{:,.0f}".format(result.sequestration_target) }}
                   </div>
-                  <div class="label">From Sequestration (MtCO₂e)</div>
+                  <div class="label">FOLU Target (MtCO₂e)</div>
                 </div>
-                <div
-                  class="result-item {% if not result.overall_feasible %}warning{% endif %}"
-                >
+                <div class="result-item">
                   <div class="value">
-                    {{ "{:,.0f}".format(result.total_area_needed) }}
+                    {{ "{:,.1f}".format(result.total_area_needed / 1000000) }}
                   </div>
-                  <div class="label">New Reforestation Needed (ha)</div>
+                  <div class="label">Total New Area (Mha)</div>
                 </div>
                 <div class="result-item">
                   <div class="value">{{ result.years }}</div>
-                  <div class="label">Years</div>
+                  <div class="label">Analysis Period</div>
                 </div>
               </div>
-              <button
-                type="button"
-                id="generatePdfBtn"
-                class="btn btn-secondary"
-                style="width: 100%; margin-top: 1rem"
-              >
-                📄 &nbsp; Download Technical Report (PDF)
+              <button type="button" id="generatePdfBtn" class="btn btn-secondary" style="width: 100%; margin-top: 1rem">
+                📄 &nbsp; Export Technical Analysis (PDF)
               </button>
             </div>
 
-            <!-- Forest Feasibility -->
+            <!-- Figure 1: Existing Forest Carbon Reduction -->
+            <div class="card mb-6">
+              <div class="card-header">
+                <h2>Figure 1: Existing Forest Carbon Reduction</h2>
+              </div>
+              <div class="chart-container" style="height: 250px">
+                <canvas id="existingForestRateChart"></canvas>
+              </div>
+              <p class="chart-caption">Shows the total annual carbon reduction (MtCO₂e/yr) from existing forests, accounting for degradation.</p>
+            </div>
+
+            <!-- Figure 2: Gross Emissions -->
+            <div class="card mb-6">
+              <div class="card-header">
+                <h2>Figure 2: Gross Emission Trajectory</h2>
+              </div>
+              <div class="chart-container" style="height: 250px">
+                <canvas id="grossEmissionsChart"></canvas>
+              </div>
+              <p class="chart-caption">Linear interpolation between Initial, Peak, and 2050 Target points.</p>
+            </div>
+
+            <!-- Figure 3: Carbon Balance -->
+            <div class="card mb-6">
+              <div class="card-header">
+                <h2>Figure 3: Carbon Balance</h2>
+              </div>
+              <div class="chart-container" style="height: 300px">
+                <canvas id="balanceChart"></canvas>
+              </div>
+              <p class="chart-caption">Gap between gross emissions and existing sequestration (to be filled by new planting).</p>
+            </div>
+
+            <!-- Figure 4: Annual New Planting Area -->
+            <div class="card mb-6">
+              <div class="card-header">
+                <h2>Figure 4: Annual New Planting Area</h2>
+              </div>
+              <div class="chart-container" style="height: 250px">
+                <canvas id="annualPlantingChart"></canvas>
+              </div>
+              <p class="chart-caption">Hectares required to be planted each year to meet the policy target.</p>
+            </div>
+
+            <div class="card mb-6">
+              <div class="card-header">
+                <h2>Figure 5: Cumulative Planted Area</h2>
+              </div>
+              <div class="chart-container" style="height: 300px">
+                <canvas id="cumulativeAreaChart"></canvas>
+              </div>
+              <p class="chart-caption">Total accumulated restoration area including required projection beyond target year.</p>
+            </div>
+
+            <!-- Figure 6: Net Carbon Balance -->
+            <div class="card mb-6">
+              <div class="card-header">
+                <h2>Figure 6: National Net Carbon Balance</h2>
+              </div>
+              <div class="chart-container" style="height: 350px">
+                <canvas id="netZeroBalanceChart"></canvas>
+              </div>
+              <p class="chart-caption">Comprehensive view of net-zero achievement, combining gross emissions with both existing and new carbon sinks.</p>
+            </div>
+
+          </div>
+        </div>
+      </form>
+
+      <!-- Feasibility Details (Optional, collapsed or bottom) -->
+      <div class="grid grid-2 mt-8">
+            <!-- Land Forest Feasibility -->
             <div class="card">
               <div class="card-header">
-                <span class="icon">🌲</span>
-                <h2>Land Forest Reforestation</h2>
-                {% if result.forest_feasibility.is_feasible %}
-                <span class="badge badge-success">✓ Feasible</span>
-                {% else %}
-                <span class="badge badge-danger">✗ Exceeds Capacity</span>
-                {% endif %}
+                <h2>Land Forest Requirement</h2>
               </div>
               <div class="result-grid">
                 <div class="result-item">
-                  <div class="value">
-                    {{ "{:,.0f}".format(result.forest_area_needed) }}
-                  </div>
-                  <div class="label">New Planting Needed (ha)</div>
-                </div>
-                <div class="result-item">
-                  <div class="value">
-                    {{
-                    "{:,.0f}".format(result.forest_feasibility.area_available)
-                    }}
-                  </div>
-                  <div class="label">Current Forest (ha)</div>
-                </div>
-                <div
-                  class="result-item {% if result.forest_feasibility.utilization_percent > 100 %}danger{% elif result.forest_feasibility.utilization_percent > 80 %}warning{% endif %}"
-                >
-                  <div class="value">
-                    {{
-                    "{:.1f}".format(result.forest_feasibility.utilization_percent)
-                    }}%
-                  </div>
-                  <div class="label">Utilization</div>
-                </div>
-                <div class="result-item">
-                  <div class="value">
-                    {{ "{:.1f}".format(result.effective_forest_rate) }}
-                  </div>
-                  <div class="label">Rate (tCO₂/ha/yr)</div>
+                  <div class="value">{{ "{:,.1f}".format(result.forest_area_needed / 1000000) }}</div>
+                  <div class="label">Required (Mha)</div>
                 </div>
               </div>
             </div>
@@ -538,809 +551,17 @@
             <!-- Coastal Feasibility -->
             <div class="card">
               <div class="card-header">
-                <span class="icon">🌊</span>
-                <h2>Coastal/Mangrove Restoration</h2>
-                {% if result.coastal_feasibility.is_feasible %}
-                <span class="badge badge-success">✓ Feasible</span>
-                {% else %}
-                <span class="badge badge-danger">✗ Exceeds Capacity</span>
-                {% endif %}
+                <h2>Coastal/Mangrove Requirement</h2>
               </div>
               <div class="result-grid">
                 <div class="result-item">
-                  <div class="value">
-                    {{ "{:,.0f}".format(result.coastal_area_needed) }}
-                  </div>
-                  <div class="label">New Restoration Needed (ha)</div>
-                </div>
-                <div class="result-item">
-                  <div class="value">
-                    {{
-                    "{:,.0f}".format(result.coastal_feasibility.area_available)
-                    }}
-                  </div>
-                  <div class="label">Current Coastal (ha)</div>
-                </div>
-                <div
-                  class="result-item {% if result.coastal_feasibility.utilization_percent > 100 %}danger{% elif result.coastal_feasibility.utilization_percent > 80 %}warning{% endif %}"
-                >
-                  <div class="value">
-                    {{
-                    "{:.1f}".format(result.coastal_feasibility.utilization_percent)
-                    }}%
-                  </div>
-                  <div class="label">Utilization</div>
-                </div>
-                <div class="result-item">
-                  <div class="value">
-                    {{ "{:.1f}".format(result.effective_coastal_rate) }}
-                  </div>
-                  <div class="label">Rate (tCO₂/ha/yr)</div>
+                  <div class="value">{{ "{:,.1f}".format(result.coastal_area_needed / 1000000) }}</div>
+                  <div class="label">Required (Mha)</div>
                 </div>
               </div>
             </div>
-
-            <!-- Scenario Comparison -->
-            <div class="card">
-              <div class="card-header">
-                <span class="icon">📋</span>
-                <h2>Scenario Comparison</h2>
-              </div>
-              <p class="text-success mb-2">{{ scenarios.recommendation }}</p>
-              <div class="table-wrapper">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Scenario</th>
-                      <th>Total Area (ha)</th>
-                      <th>Forest %</th>
-                      <th>Coastal %</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for scenario in scenarios.scenarios %}
-                    <tr>
-                      <td>{{ scenario.scenario_name }}</td>
-                      <td>
-                        {{ "{:,.0f}".format(scenario.result.total_area_needed)
-                        }}
-                      </td>
-                      <td>
-                        {{
-                        "{:.1f}".format(scenario.result.forest_feasibility.utilization_percent)
-                        }}%
-                      </td>
-                      <td>
-                        {{
-                        "{:.1f}".format(scenario.result.coastal_feasibility.utilization_percent)
-                        }}%
-                      </td>
-                      <td>
-                        {% if scenario.result.overall_feasible %}
-                        <span class="badge badge-success">✓</span>
-                        {% else %}
-                        <span class="badge badge-danger">✗</span>
-                        {% endif %}
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </form>
-
-      <!-- Charts Section -->
-      <div class="grid grid-2 mt-3">
-        <!-- Area Comparison Chart -->
-        <div class="card">
-          <div class="card-header">
-            <span class="icon">📊</span>
-            <h2>Current vs Required Area by Risk</h2>
-          </div>
-          <div style="position: relative; height: 300px">
-            <canvas id="areaComparisonChart"></canvas>
-          </div>
-          <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
-            <strong>How to Read:</strong> Compares Indonesia's current
-            forest/coastal area (green/blue bars) against the additional area
-            needed under each risk scenario. Higher risk scenarios require more
-            restoration to offset potential sequestration failures.
-          </p>
-        </div>
-
-        <!-- Annual Trajectory Chart -->
-        <div class="card">
-          <div class="card-header">
-            <span class="icon">📈</span>
-            <h2>
-              Reforestation Trajectory ({{ defaults.start_year }}-{{
-              defaults.target_year }})
-            </h2>
-          </div>
-          <div style="position: relative; height: 300px">
-            <canvas id="trajectoryChart"></canvas>
-          </div>
-          <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
-            <strong>How to Read:</strong> Shows cumulative hectares of new
-            forest/coastal restoration needed annually to meet 2050 targets.
-            Lines diverge over time as risk buffers compound. 🟢 Optimistic (0%
-            risk) | 🟡 Moderate (20%) | 🔴 Pessimistic (40%).
-          </p>
-        </div>
       </div>
-
-      <!-- Risk Scenario Comparison Chart (Stacked) -->
-      <div class="card mt-3">
-        <div class="card-header">
-          <span class="icon">⚠️</span>
-          <h2>Risk Scenario Comparison - Stacked Area Needed</h2>
-        </div>
-        <div style="position: relative; height: 280px">
-          <canvas id="scenarioChart"></canvas>
-        </div>
-        <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
-          <strong>How to Read:</strong> Stacked bar chart showing total hectares
-          required per risk scenario. Dark bars = forest reforestation ({{
-          defaults.forest_percent }}% of target). Light bars = coastal/mangrove
-          restoration ({{ 100 - defaults.forest_percent }}%). Taller stacks =
-          greater land requirement under higher risk assumptions.
-        </p>
-      </div>
-
-      <!-- Emissions Trajectory Chart -->
-      <div class="card mt-3">
-        <div class="card-header">
-          <span class="icon">🌍</span>
-          <h2>Emissions Reduction Trajectory</h2>
-        </div>
-        <div style="position: relative; height: 300px">
-          <canvas id="emissionsChart"></canvas>
-        </div>
-        <p class="text-muted mt-2 text-center" style="font-size: 0.85rem">
-          <strong>How to Read:</strong> The green line shows projected net
-          emissions (MtCO₂e) declining from {{ defaults.start_year }} to {{
-          defaults.target_year }}. The red dashed line marks the 540 MtCO₂e
-          target. Risk scenarios affect land area requirements (see other
-          charts), not this emissions pathway.
-        </p>
-      </div>
-
-      <!-- Uncertainty & Sensitivity Analysis Section -->
-      <div class="card mt-3" style="border-left: 4px solid #f59e0b">
-        <div class="card-header">
-          <span class="icon">⚠️</span>
-          <h2>Uncertainty & Sensitivity Analysis</h2>
-        </div>
-
-        <div style="padding: 1rem">
-          <p style="color: var(--text-muted); margin-bottom: 1.5rem">
-            <strong>Academic Note:</strong> All carbon sequestration projections
-            carry inherent uncertainties. The following analysis documents key
-            assumptions, their uncertainty ranges, and sensitivity of results to
-            parameter changes—following IPCC guidance on uncertainty
-            characterization (IPCC, 2006; Penman et al., 2003).
-          </p>
-
-          <h3 style="color: var(--accent-success); margin-bottom: 1rem">
-            📊 Key Parameter Uncertainties
-          </h3>
-
-          <table
-            style="
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 1.5rem;
-              font-size: 0.9rem;
-            "
-          >
-            <thead>
-              <tr style="background: rgba(16, 185, 129, 0.2)">
-                <th
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: left;
-                  "
-                >
-                  Parameter
-                </th>
-                <th
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  Default Value
-                </th>
-                <th
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  Uncertainty Range
-                </th>
-                <th
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: left;
-                  "
-                >
-                  Source of Uncertainty
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Forest Sequestration Rate
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  {{ defaults.forest_rate }} tCO₂/ha/yr
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  ±30% (4.8–9.0)
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Site-specific variation, climate, soil quality (IPCC 2006)
-                </td>
-              </tr>
-              <tr style="background: rgba(255, 255, 255, 0.03)">
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Coastal Sequestration Rate
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  {{ defaults.coastal_rate }} tCO₂/ha/yr
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  ±50% (3.3–9.9)
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Mangrove type, sediment dynamics (Alongi, 2014)
-                </td>
-              </tr>
-              <tr>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Degradation Rate
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  {{ defaults.degradation_rate }}%/year
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  1–4%
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Policy effectiveness, enforcement, fire risk (FAO, 2020)
-                </td>
-              </tr>
-              <tr style="background: rgba(255, 255, 255, 0.03)">
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Root-to-Shoot Ratio
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  {{ defaults.root_to_shoot_ratio }}
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  0.20–0.50
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Forest type, age, soil conditions (Mokany et al., 2006)
-                </td>
-              </tr>
-              <tr>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Emissions Target (2050)
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  {{ defaults.target_2050 }} MtCO₂e
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  ±20%
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Policy ambition, economic conditions (Indonesia NDC, 2022)
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <h3 style="color: var(--accent-success); margin-bottom: 1rem">
-            🔬 Sensitivity Analysis
-          </h3>
-          <p style="color: var(--text-muted); margin-bottom: 1rem">
-            The table below shows how a <strong>±20% change</strong> in each key
-            parameter affects the total land area requirement. This follows
-            standard one-at-a-time (OAT) sensitivity analysis methodology.
-          </p>
-
-          <table
-            style="
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 1.5rem;
-              font-size: 0.9rem;
-            "
-          >
-            <thead>
-              <tr style="background: rgba(59, 130, 246, 0.2)">
-                <th
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: left;
-                  "
-                >
-                  Parameter Changed
-                </th>
-                <th
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  -20% Change
-                </th>
-                <th
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  Baseline
-                </th>
-                <th
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  +20% Change
-                </th>
-                <th
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  Sensitivity
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Sequestration Rate
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    color: #ef4444;
-                  "
-                >
-                  +25% area needed
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  —
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    color: #22c55e;
-                  "
-                >
-                  -17% area needed
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    font-weight: bold;
-                  "
-                >
-                  HIGH
-                </td>
-              </tr>
-              <tr style="background: rgba(255, 255, 255, 0.03)">
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Degradation Rate
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    color: #22c55e;
-                  "
-                >
-                  -8% area needed
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  —
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    color: #ef4444;
-                  "
-                >
-                  +10% area needed
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    font-weight: bold;
-                  "
-                >
-                  MEDIUM
-                </td>
-              </tr>
-              <tr>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Target Emissions (2050)
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    color: #ef4444;
-                  "
-                >
-                  +20% area needed
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  —
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    color: #22c55e;
-                  "
-                >
-                  -20% area needed
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    font-weight: bold;
-                  "
-                >
-                  HIGH
-                </td>
-              </tr>
-              <tr style="background: rgba(255, 255, 255, 0.03)">
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Sequestration % of Reduction
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    color: #22c55e;
-                  "
-                >
-                  -20% area needed
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  —
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    color: #ef4444;
-                  "
-                >
-                  +20% area needed
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    font-weight: bold;
-                  "
-                >
-                  HIGH
-                </td>
-              </tr>
-              <tr>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                  "
-                >
-                  Root-to-Shoot Ratio
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    color: #ef4444;
-                  "
-                >
-                  +5% area needed
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  —
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                    color: #22c55e;
-                  "
-                >
-                  -5% area needed
-                </td>
-                <td
-                  style="
-                    padding: 0.75rem;
-                    border: 1px solid var(--border-color);
-                    text-align: center;
-                  "
-                >
-                  LOW
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <h3 style="color: var(--accent-success); margin-bottom: 1rem">
-            ⚠️ Key Assumptions & Limitations
-          </h3>
-          <ul style="color: var(--text-muted); line-height: 1.8">
-            <li>
-              <strong>Linear Emissions Pathway:</strong> Assumes linear decline
-              from 2030 baseline to 2050 target. Real-world pathways may be
-              non-linear.
-            </li>
-            <li>
-              <strong>Additionality:</strong> Assumes all planted forests
-              represent "additional" sequestration beyond business-as-usual.
-            </li>
-            <li>
-              <strong>Permanence:</strong> Carbon stocks assumed permanent; no
-              discount for potential future release from fire, disease, or
-              land-use change.
-            </li>
-            <li>
-              <strong>Growth Lag:</strong> New forests modeled with 5-year
-              establishment phase based on Chapin et al. (2002). Actual lag
-              varies by species and site.
-            </li>
-            <li>
-              <strong>Uniform Rates:</strong> Single sequestration rate applied
-              nationally; real rates vary significantly by region, species, and
-              management.
-            </li>
-            <li>
-              <strong>No Saturation:</strong> Model does not account for carbon
-              saturation in mature forests (typically >100 years).
-            </li>
-            <li>
-              <strong>Static Climate:</strong> Does not model climate change
-              impacts on sequestration rates (Grace, 2004).
-            </li>
-          </ul>
-
-          <div
-            style="
-              background: rgba(59, 130, 246, 0.1);
-              border: 1px solid rgba(59, 130, 246, 0.3);
-              border-radius: 8px;
-              padding: 1rem;
-              margin-top: 1.5rem;
-            "
-          >
-            <strong style="color: #3b82f6">📖 Interpretation Guidance:</strong>
-            <p
-              style="
-                color: var(--text-muted);
-                margin-top: 0.5rem;
-                margin-bottom: 0;
-              "
-            >
-              Use the <strong>Moderate (20% risk)</strong> scenario as a
-              planning baseline. The range between Optimistic and Pessimistic
-              scenarios represents the
-              <strong>90% confidence interval</strong> for land area
-              requirements. For policy decisions, consider the upper bound
-              (Pessimistic) to ensure targets are achievable under adverse
-              conditions.
-            </p>
-          </div>
-        </div>
-      </div>
+    </div>
 
       <!-- Methodology Link -->
       <div class="card mt-3" style="text-align: center; padding: 1.5rem">
@@ -1375,406 +596,384 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', path='/app.js') }}"></script>
     <script>
-      // Chart data from backend
-      const chartData = {{ chart_data | tojson }};
-      const multiRiskData = {{ multi_risk_data | tojson }};
-      // IPCC-inspired Color palette (professional, muted academic tones)
-      const colors = {
-        // Ecosystem colors (IPCC style)
-        forest: '#2E7D32',           // Deep Forest Green
-        forestLight: 'rgba(46, 125, 50, 0.3)',
-        coastal: '#0277BD',          // Ocean Blue
-        coastalLight: 'rgba(2, 119, 189, 0.3)',
-
-        // Status colors
-        warning: '#F9A825',          // Amber
-        danger: '#C62828',           // Deep Red
-
-        // Grid and text
-        grid: 'rgba(255, 255, 255, 0.08)',
-        text: '#B0BEC5',             // Blue Grey
-
-        // Risk scenario colors (IPCC traffic light style)
-        optimistic: '#43A047',       // Green
-        moderate: '#FB8C00',         // Orange
-        pessimistic: '#E53935',      // Red
-
-        // Area type colors
-        current: '#546E7A',          // Blue Grey
-
-        // Roadmap wedge colors (IPCC style)
-        roadmap: {
-            emissions: 'rgba(84, 110, 122, 0.7)',     // Blue Grey
-            existing_sink: 'rgba(27, 94, 32, 0.8)',   // Dark Forest
-            new_sink: 'rgba(56, 142, 60, 0.8)',       // Medium Green
-            other_mitigation: 'rgba(94, 53, 177, 0.7)', // Deep Purple
-            net_path: '#1565C0'                       // Strong Blue
+      document.addEventListener("DOMContentLoaded", function() {
+        console.log("Initializing Dashboard Charts...");
+        
+        // 1. Data Initialization
+        const rawChartData = {{ chart_data|tojson }};
+        const dashboardDefaults = {{ defaults|tojson }};
+        
+        console.log("Raw Chart Data:", rawChartData);
+        
+        if (!rawChartData) {
+            console.error("Critical: chartData is missing from template context");
+            return;
         }
-      };
 
-      window.dashboardCharts = {};
+        const chartData = rawChartData;
+        window.dashboardCharts = {};
+        
+        // 2. Color Palette
+        const colors = {
+          forest: "#22c55e",
+          forestLight: "rgba(34, 197, 94, 0.2)",
+          coastal: "#0ea5e9",
+          coastalLight: "rgba(14, 165, 233, 0.2)",
+          emissions: "#64748b",
+          balance: "#f43f5e",
+          target: "#ef4444",
+          grid: "rgba(255, 255, 255, 0.05)",
+          text: "#94a3b8"
+        };
 
-      // Common chart options (IPCC-style professional appearance)
-      const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: {
-              color: colors.text,
-              font: {
-                family: "'Inter', 'Segoe UI', sans-serif",
-                size: 11,
-                weight: '500'
-              },
-              padding: 15,
-              usePointStyle: true,
-              pointStyle: 'rectRounded'
-            }
-          }
-        },
-        scales: {
-          x: {
-            ticks: {
-              color: colors.text,
-              font: { family: "'Inter', 'Segoe UI', sans-serif", size: 11 }
-            },
-            grid: { color: colors.grid }
-          },
-          y: {
-            ticks: {
-              color: colors.text,
-              font: { family: "'Inter', 'Segoe UI', sans-serif", size: 11 }
-            },
-            grid: { color: colors.grid }
-          }
-        }
-      };
-
-      // 1. Area Comparison Chart (Current vs Risk Scenarios)
-      window.dashboardCharts.area = new Chart(document.getElementById('areaComparisonChart'), {
-        type: 'bar',
-        data: {
-          labels: ['Forest', 'Coastal'],
-          datasets: [
-            {
-              label: 'Current Area',
-              data: [multiRiskData.current_forest, multiRiskData.current_coastal],
-              backgroundColor: [colors.forestLight, colors.coastalLight],
-              borderColor: [colors.forest, colors.coastal],
-              borderWidth: 2
-            },
-            ...multiRiskData.scenarios.map(s => ({
-              label: s.name + ' (' + s.risk_factor + '% risk)',
-              data: [s.forest_area_needed, s.coastal_area_needed],
-              backgroundColor: [s.color + '99', s.color + '66'],
-              borderColor: [s.color, s.color],
-              borderWidth: 2
-            }))
-          ]
-        },
-        options: {
-          ...commonOptions,
+        const commonOptions = {
+          responsive: true,
+          maintainAspectRatio: false,
           plugins: {
-            ...commonOptions.plugins,
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const value = context.raw;
-                  if (value >= 1000000) {
-                    return context.dataset.label + ': ' + (value / 1000000).toFixed(2) + 'M ha';
-                  }
-                  return context.dataset.label + ': ' + value.toLocaleString() + ' ha';
-                }
-              }
-            },
-            title: {
-              display: true,
-              text: 'Current Area vs. Area Required by Risk Scenario',
-              color: colors.text,
-              font: { size: 14 }
-            }
-          },
-          scales: {
-            ...commonOptions.scales,
-            y: {
-              ...commonOptions.scales.y,
-              title: {
-                display: true,
-                text: 'Area (hectares)',
-                color: colors.text
-              }
-            }
-          }
-        }
-      });
-
-      // 2. Annual Trajectory Chart - Multi Risk Scenario Lines
-      window.dashboardCharts.trajectory = new Chart(document.getElementById('trajectoryChart'), {
-        type: 'line',
-        data: {
-          labels: multiRiskData.scenarios[0]?.years || chartData.trajectory.years,
-          datasets: multiRiskData.scenarios.flatMap(s => [
-            {
-              label: s.name + ' - Total Area (ha)',
-              data: s.area_trajectory,
-              borderColor: s.color,
-              backgroundColor: s.color + '33',
-              fill: false,
-              tension: 0.3,
-              borderWidth: 3,
-              pointRadius: 2
-            }
-          ])
-        },
-        options: {
-          ...commonOptions,
-          plugins: {
-            ...commonOptions.plugins,
-            title: {
-              display: true,
-              text: 'Cumulative Reforestation/Restoration by Risk Scenario',
-              color: colors.text,
-              font: { size: 14 }
-            },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const value = context.raw;
-                  if (value >= 1000000) {
-                    return context.dataset.label + ': ' + (value / 1000000).toFixed(2) + 'M ha';
-                  }
-                  return context.dataset.label + ': ' + Math.round(value).toLocaleString() + ' ha';
-                }
-              }
-            },
             legend: {
-              labels: { color: colors.text }
-            }
-          },
-          scales: {
-            ...commonOptions.scales,
-            y: {
-              ...commonOptions.scales.y,
-              title: {
-                display: true,
-                text: 'Cumulative Area Needed (ha)',
-                color: colors.text
+              position: 'bottom',
+              labels: { 
+                color: colors.text, 
+                boxWidth: 12, 
+                usePointStyle: true,
+                font: { size: 11, family: "'Inter', sans-serif" }
               }
-            }
-          }
-        }
-      });
-
-      // 3. Risk Scenario Stacked Bar Chart
-      window.dashboardCharts.scenario = new Chart(document.getElementById('scenarioChart'), {
-        type: 'bar',
-        data: {
-          labels: multiRiskData.scenarios.map(s => s.name + ' (' + s.risk_factor + '%)'),
-          datasets: [
-            {
-              label: 'Forest Reforestation (Million ha)',
-              data: multiRiskData.scenarios.map(s => s.forest_area_needed / 1000000),
-              backgroundColor: multiRiskData.scenarios.map(s => s.color + 'DD'),
-              borderColor: multiRiskData.scenarios.map(s => s.color),
-              borderWidth: 2,
-              stack: 'stack1'
             },
-            {
-              label: 'Coastal Restoration (Million ha)',
-              data: multiRiskData.scenarios.map(s => s.coastal_area_needed / 1000000),
-              backgroundColor: multiRiskData.scenarios.map(s => s.color + '66'),
-              borderColor: multiRiskData.scenarios.map(s => s.color),
-              borderWidth: 2,
-              stack: 'stack1'
-            }
-          ]
-        },
-        options: {
-          ...commonOptions,
-          plugins: {
-            ...commonOptions.plugins,
             tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return context.dataset.label + ': ' + context.raw.toFixed(2) + ' M ha';
-                },
-                afterBody: function(context) {
-                  const idx = context[0].dataIndex;
-                  const scenario = multiRiskData.scenarios[idx];
-                  const total = (scenario.forest_area_needed + scenario.coastal_area_needed) / 1000000;
-                  return ['─────────────', 'Total: ' + total.toFixed(2) + ' M ha'];
-                }
-              }
-            },
-            title: {
-              display: true,
-              text: 'Total Hectares Required per Risk Scenario (Stacked)',
-              color: colors.text,
-              font: { size: 14 }
+              mode: 'index',
+              intersect: false,
+              padding: 10,
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              titleColor: '#fff',
+              bodyColor: colors.text,
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              borderWidth: 1
             }
           },
           scales: {
-            ...commonOptions.scales,
             x: {
-              stacked: true,
-              ...commonOptions.scales.x
-            },
-            y: {
-              stacked: true,
-              ...commonOptions.scales.y,
+              grid: { display: false },
+              ticks: { color: colors.text, font: { size: 10 } },
               title: {
                 display: true,
-                text: 'Area Needed (Million ha)',
-                color: colors.text
+                text: 'Simulation Year',
+                color: colors.text,
+                font: { size: 12, weight: '500' }
+              }
+            },
+            y: {
+              grid: { color: colors.grid },
+              ticks: { color: colors.text, font: { size: 10 } },
+              title: {
+                display: true,
+                text: 'Value',
+                color: colors.text,
+                font: { size: 12, weight: '500' }
               }
             }
           }
-        }
-      });
+        };
 
-      // 4. Emissions Trajectory Chart - Single pathway (risk affects area, not emissions target)
-      window.dashboardCharts.emissions = new Chart(document.getElementById('emissionsChart'), {
-        type: 'line',
-        data: {
-          labels: multiRiskData.scenarios[0]?.years || chartData.trajectory.years,
-          datasets: [
-            {
-              label: 'Projected Net Emissions',
-              data: multiRiskData.scenarios[0]?.emissions_trajectory || [],
-              borderColor: colors.forest,
-              backgroundColor: colors.forestLight,
-              fill: true,
-              tension: 0.3,
-              borderWidth: 3,
-              pointRadius: 4,
-              pointBackgroundColor: colors.forest
-            },
-            {
-              label: '2050 Target (540 MtCO₂e)',
-              data: (multiRiskData.scenarios[0]?.years || []).map(() => 540),
-              borderColor: colors.danger,
-              borderWidth: 2,
-              borderDash: [8, 4],
-              fill: false,
-              pointRadius: 0
-            }
-          ]
-        },
-        options: {
-          ...commonOptions,
-          plugins: {
-            ...commonOptions.plugins,
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return context.dataset.label + ': ' + Math.round(context.raw).toLocaleString() + ' MtCO₂e';
-                }
-              }
-            },
-            title: {
-              display: true,
-              text: 'Projected Net Emissions Pathway (2030-2050)',
-              color: colors.text,
-              font: { size: 14 }
-            }
-          },
-          scales: {
-            ...commonOptions.scales,
-            y: {
-              ...commonOptions.scales.y,
-              title: {
-                display: true,
-                text: 'Net Emissions (MtCO₂e)',
-                color: colors.text
+        // 3. Chart Implementations
+        
+        // Chart 1: Existing Forest Carbon Reduction
+        const ctx1 = document.getElementById('existingForestRateChart')?.getContext('2d');
+        if (ctx1 && chartData.existing_forest_sequestration) {
+            console.log("Found Chart 1 context and data");
+            window.dashboardCharts.existingRate = new Chart(ctx1, {
+              type: 'line',
+              data: {
+                labels: chartData.existing_forest_sequestration.years,
+                datasets: [{
+                  label: 'Carbon Reduction (MtCO₂e/yr)',
+                  data: chartData.existing_forest_sequestration.total_sequestration_mt,
+                  borderColor: colors.forest,
+                  backgroundColor: colors.forestLight,
+                  fill: true,
+                  tension: 0.1,
+                  pointRadius: 0
+                }]
               },
-              min: 0
-            }
-          }
-        }
-      });
-
-      // 5. National Net Zero Roadmap (IPCC Styled)
-      window.dashboardCharts.roadmap = new Chart(document.getElementById('roadmapChart'), {
-        type: 'line',
-        data: {
-          labels: multiRiskData.roadmap.years,
-          datasets: [
-            {
-              label: 'Net Carbon Balance',
-              data: multiRiskData.roadmap.net_balance,
-              borderColor: colors.roadmap.net_path,
-              borderWidth: 4,
-              fill: false,
-              tension: 0.3,
-              pointRadius: 0,
-              order: 0
-            },
-            {
-                label: 'Gross Emissions',
-                data: multiRiskData.roadmap.emissions,
-                backgroundColor: colors.roadmap.emissions,
-                fill: true,
-                order: 1
-            },
-            {
-                label: 'Existing Sink Capacity (Decay)',
-                data: multiRiskData.roadmap.existing_sink,
-                backgroundColor: colors.roadmap.existing_sink,
-                fill: true,
-                order: 2
-            },
-            {
-                label: 'New Restoration Wedge',
-                data: multiRiskData.roadmap.new_sink,
-                backgroundColor: colors.roadmap.new_sink,
-                fill: true,
-                order: 3
-            },
-            {
-                label: 'Other Mitigation (' + (100 - {{ defaults.sequestration_percent }}) + '%)',
-                data: multiRiskData.roadmap.other_mitigation,
-                backgroundColor: colors.roadmap.other_mitigation,
-                fill: true,
-                borderDash: [5, 5],
-                order: 4
-            }
-          ]
-        },
-        options: {
-          ...commonOptions,
-          interaction: {
-            mode: 'index',
-            intersect: false
-          },
-          plugins: {
-            ...commonOptions.plugins,
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        return context.dataset.label + ': ' + context.raw.toFixed(1) + ' MtCO₂e';
-                    }
+              options: {
+                ...commonOptions,
+                scales: {
+                  ...commonOptions.scales,
+                  y: {
+                    ...commonOptions.scales.y,
+                    title: { ...commonOptions.scales.y.title, text: 'Carbon Reduction (MtCO₂e/yr)' }
+                  }
                 }
-            },
-            title: {
-                display: false
-            }
-          },
-          scales: {
-            ...commonOptions.scales,
-            x: {
-              ...commonOptions.scales.x,
-              title: { display: true, text: 'Year', color: colors.text }
-            },
-            y: {
-              stacked: false, // Wedges are just area fills here
-              title: { display: true, text: 'CO₂e (Million Tonnes / Year)', color: colors.text },
-              ticks: { color: colors.text },
-              grid: { color: colors.grid }
-            }
-          }
+              }
+            });
         }
+
+        // Chart 2: Gross Emissions
+        const ctx2 = document.getElementById('grossEmissionsChart')?.getContext('2d');
+        if (ctx2 && chartData.gross_emissions) {
+            console.log("Found Chart 2 context and data");
+            window.dashboardCharts.grossEmissions = new Chart(ctx2, {
+              type: 'bar',
+              data: {
+                labels: chartData.gross_emissions.years,
+                datasets: [
+                  {
+                    type: 'bar',
+                    label: 'Historical/Peak Data Points',
+                    data: chartData.gross_emissions.sparse_data_points,
+                    backgroundColor: colors.emissions,
+                    borderRadius: 4,
+                    maxBarThickness: 40
+                  },
+                  {
+                    type: 'line',
+                    label: 'Interpolated Pathway',
+                    data: chartData.gross_emissions.interpolated_emissions,
+                    borderColor: colors.text,
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                  },
+                  {
+                    type: 'line',
+                    label: 'Policy Sequestration Target',
+                    data: chartData.gross_emissions.policy_target_line,
+                    borderColor: colors.target,
+                    borderWidth: 2,
+                    fill: false,
+                    pointRadius: 0
+                  }
+                ]
+              },
+              options: {
+                ...commonOptions,
+                scales: {
+                  ...commonOptions.scales,
+                  y: {
+                    ...commonOptions.scales.y,
+                    title: { ...commonOptions.scales.y.title, text: 'Gross Emissions (MtCO₂e/yr)' }
+                  }
+                }
+              }
+            });
+        }
+
+        // Chart 3: Carbon Balance
+        const ctx3 = document.getElementById('balanceChart')?.getContext('2d');
+        if (ctx3 && chartData.carbon_balance) {
+            console.log("Found Chart 3 context and data");
+            window.dashboardCharts.balance = new Chart(ctx3, {
+              type: 'line',
+              data: {
+                labels: chartData.carbon_balance.years,
+                datasets: [
+                  {
+                    label: 'Gross Emissions',
+                    data: chartData.carbon_balance.gross_emissions,
+                    borderColor: colors.emissions,
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 0
+                  },
+                  {
+                    label: 'Existing Sequestration (Sink)',
+                    data: chartData.carbon_balance.existing_forest_sequestration,
+                    borderColor: colors.forest,
+                    backgroundColor: colors.forestLight,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0
+                  },
+                  {
+                    label: 'Net Balance',
+                    data: chartData.carbon_balance.net_balance,
+                    borderColor: colors.balance,
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 0
+                  }
+                ]
+              },
+              options: {
+                ...commonOptions,
+                scales: {
+                  ...commonOptions.scales,
+                  y: {
+                    ...commonOptions.scales.y,
+                    title: { ...commonOptions.scales.y.title, text: 'Carbon Flux (MtCO₂e/yr)' },
+                    grid: {
+                      ...commonOptions.scales.y.grid,
+                      color: (context) => context.tick?.value === 0 ? 'rgba(255, 255, 255, 0.4)' : colors.grid
+                    }
+                  }
+                }
+              }
+            });
+        }
+
+        // Chart 4a: Annual New Planting
+        const ctx4a = document.getElementById('annualPlantingChart')?.getContext('2d');
+        if (ctx4a && chartData.new_planting) {
+            console.log("Found Chart 4a context and data");
+            window.dashboardCharts.annualPlanting = new Chart(ctx4a, {
+              type: 'bar',
+              data: {
+                labels: chartData.new_planting.years,
+                datasets: [{
+                  label: 'New Planting Area (ha/year)',
+                  data: chartData.new_planting.annual_planting_area,
+                  backgroundColor: colors.coastal,
+                  borderRadius: 4
+                }]
+              },
+              options: {
+                ...commonOptions,
+                scales: {
+                  ...commonOptions.scales,
+                  y: {
+                    ...commonOptions.scales.y,
+                    title: { ...commonOptions.scales.y.title, text: 'Annual Planting Area (ha/yr)' }
+                  }
+                }
+              }
+            });
+        }
+
+        // Chart 4b: Cumulative Planted Area
+        const ctx4b = document.getElementById('cumulativeAreaChart')?.getContext('2d');
+        if (ctx4b && chartData.new_planting) {
+            console.log("Found Chart 4b context and data");
+            window.dashboardCharts.cumulativeArea = new Chart(ctx4b, {
+              type: 'line',
+              data: {
+                labels: chartData.new_planting.years,
+                datasets: [{
+                  label: 'Cumulative Planted Area (ha)',
+                  data: chartData.new_planting.cumulative_planted_area,
+                  borderColor: colors.coastal,
+                  backgroundColor: colors.coastalLight,
+                  fill: true,
+                  tension: 0.1,
+                  pointRadius: 2
+                }]
+              },
+              options: {
+                ...commonOptions,
+                scales: {
+                  ...commonOptions.scales,
+                  y: {
+                    ...commonOptions.scales.y,
+                    title: { ...commonOptions.scales.y.title, text: 'Total Planted Area (ha)' }
+                  },
+                  x: {
+                    ...commonOptions.scales.x,
+                    grid: {
+                      ...commonOptions.scales.x.grid,
+                      display: true,
+                      color: (context) => {
+                        const year = parseInt(context.tick?.label);
+                        return year === 2050 ? 'rgba(239, 68, 68, 0.5)' : colors.grid;
+                      }
+                    }
+                  }
+                }
+              }
+            });
+        }
+
+        // Figure 6: National Net Carbon Balance
+        const ctx6 = document.getElementById('netZeroBalanceChart')?.getContext('2d');
+        if (ctx6 && chartData.net_zero_balance) {
+            window.dashboardCharts.netZeroBalance = new Chart(ctx6, {
+              type: 'line',
+              data: {
+                labels: chartData.net_zero_balance.years,
+                datasets: [
+                  {
+                    label: 'Gross Emissions',
+                    data: chartData.net_zero_balance.gross_emissions,
+                    borderColor: colors.emissions,
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                  },
+                  {
+                    label: 'Existing Sequestration (Sink)',
+                    data: chartData.net_zero_balance.existing_forest_sequestration,
+                    borderColor: colors.forest,
+                    backgroundColor: colors.forestLight,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0
+                  },
+                  {
+                    label: 'New Planting Sequestration (Sink)',
+                    data: chartData.net_zero_balance.new_planting_sequestration,
+                    borderColor: colors.coastal,
+                    backgroundColor: colors.coastalLight,
+                    fill: true,
+                    tension: 0.1,
+                    pointRadius: 0
+                  },
+                  {
+                    label: 'Net Balance',
+                    data: chartData.net_zero_balance.net_balance,
+                    borderColor: colors.balance,
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.1,
+                    pointRadius: 0
+                  }
+                ]
+              },
+              options: {
+                ...commonOptions,
+                scales: {
+                  ...commonOptions.scales,
+                  y: {
+                    ...commonOptions.scales.y,
+                    title: { ...commonOptions.scales.y.title, text: 'Carbon Flux (MtCO₂e/yr)' },
+                    grid: {
+                      ...commonOptions.scales.y.grid,
+                      color: (context) => context.tick?.value === 0 ? 'rgba(255, 255, 255, 0.4)' : colors.grid
+                    }
+                  }
+                }
+              }
+            });
+        }
+
+        // 4. Form Interactions
+        document.getElementById('resetBtn')?.addEventListener('click', () => {
+          const form = document.getElementById('calculatorForm');
+          if (dashboardDefaults) {
+              Object.keys(dashboardDefaults).forEach(key => {
+                const input = form.elements[key];
+                if (input) {
+                  if (input.type === 'checkbox') input.checked = dashboardDefaults[key];
+                  else input.value = dashboardDefaults[key];
+                  input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+              });
+              form.submit();
+          }
+        });
+
+        // Range value labels update
+        document.querySelectorAll('input[type="range"]').forEach(range => {
+          range.addEventListener('input', (e) => {
+            const valueSpan = document.getElementById(e.target.id + 'Value') || 
+                              (e.target.id === 'new_planting_forest_percent' ? document.getElementById('forestPercentValue') : null);
+            if (valueSpan) {
+              if (e.target.id === 'new_planting_forest_percent') {
+                const val = parseInt(e.target.value);
+                valueSpan.textContent = `${val}% / ${100 - val}%`;
+              }
+            }
+          });
+        });
       });
     </script>
   </body>
