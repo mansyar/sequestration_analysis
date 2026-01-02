@@ -34,7 +34,9 @@ from calculator.constants import (
     DEFAULT_NEW_PLANTING_FOREST_PERCENT,
     DEFAULT_EXISTING_FOREST_STATUS,
     EXISTING_FOREST_STATUS_OPTIONS,
-    SEQUESTRATION_DEGRADATION_RATE
+    SEQUESTRATION_DEGRADATION_RATE,
+    DEFAULT_PLANTING_METHOD,
+    PLANTING_METHOD_OPTIONS
 )
 
 # Initialize FastAPI app
@@ -93,7 +95,11 @@ async def home(request: Request):
         "degradation_rate": SEQUESTRATION_DEGRADATION_RATE * 100.0,
         
         # Risk Factor
-        "risk_factor": 0
+        "risk_factor": 0,
+        
+        # Planting Method
+        "planting_method": DEFAULT_PLANTING_METHOD,
+        "planting_method_options": PLANTING_METHOD_OPTIONS
     }
     
     # Calculate default result
@@ -145,7 +151,10 @@ async def calculate(
     risk_factor: Annotated[float, Form()] = 0,
     
     # Degradation Rate (from range slider)
-    degradation_rate: Annotated[float, Form()] = SEQUESTRATION_DEGRADATION_RATE * 100.0
+    degradation_rate: Annotated[float, Form()] = SEQUESTRATION_DEGRADATION_RATE * 100.0,
+    
+    # Planting Method
+    planting_method: Annotated[str, Form()] = DEFAULT_PLANTING_METHOD
 ):
     """Process calculation and return results"""
     
@@ -168,7 +177,8 @@ async def calculate(
         root_to_shoot_ratio=root_to_shoot_ratio,
         include_below_ground=include_below_ground,
         risk_factor=risk_factor,
-        degradation_rate=degradation_rate
+        degradation_rate=degradation_rate,
+        planting_method=planting_method
     )
     
     # Calculate results
@@ -195,7 +205,9 @@ async def calculate(
         "root_to_shoot_ratio": root_to_shoot_ratio,
         "include_below_ground": include_below_ground,
         "risk_factor": risk_factor,
-        "degradation_rate": degradation_rate
+        "degradation_rate": degradation_rate,
+        "planting_method": planting_method,
+        "planting_method_options": PLANTING_METHOD_OPTIONS
     }
     
     return templates.TemplateResponse(

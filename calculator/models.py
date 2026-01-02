@@ -63,6 +63,12 @@ class CalculatorInput(BaseModel):
         description="Year to start new planting"
     )
     
+    # Planting distribution method
+    planting_method: str = Field(
+        default="equal",
+        description="Planting distribution method: 'equal', 'front_loaded', 'back_loaded', 's_curve', 'adaptive'"
+    )
+    
     # Existing forest area allocation
     forest_area_available: float = Field(
         default=120_343_230,

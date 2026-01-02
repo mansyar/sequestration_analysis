@@ -79,6 +79,41 @@ EXISTING_FOREST_STATUS_OPTIONS = {
 DEFAULT_EXISTING_FOREST_STATUS = "mixed"  # Changed from "mature" to "mixed"
 
 # =============================================================================
+# Planting Distribution Methods
+# =============================================================================
+# Different strategies for distributing planting area across years
+
+PLANTING_METHOD_OPTIONS = {
+    "equal": {
+        "label": "📊 Equal Distribution",
+        "description": "Plant the same area every year",
+        "icon": "━━━━━"
+    },
+    "front_loaded": {
+        "label": "📈 Front-loaded (Early Emphasis)",
+        "description": "Plant more in early years, tapering off later",
+        "icon": "╲____"
+    },
+    "back_loaded": {
+        "label": "📉 Back-loaded (Gradual Ramp-up)",
+        "description": "Start small, increase planting over time",
+        "icon": "____╱"
+    },
+    "s_curve": {
+        "label": "🔄 S-Curve (Logistic Growth)",
+        "description": "Slow start, rapid mid-phase, plateau at end",
+        "icon": "___/‾"
+    },
+    "adaptive": {
+        "label": "🎯 Adaptive (Degradation Response)",
+        "description": "Prioritize based on degradation rates",
+        "icon": "~∿~∿"
+    }
+}
+
+DEFAULT_PLANTING_METHOD = "equal"
+
+# =============================================================================
 # New Planting Maturity Curve (IPCC-based)
 # =============================================================================
 # Reference: Chapin et al. (2002), Baldocchi (2008), IPCC 2006

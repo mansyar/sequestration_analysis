@@ -30,7 +30,8 @@ from .constants import (
     MATURITY_PHASES,
     DEFAULT_NEW_PLANTING_FOREST_PERCENT,
     INDONESIA_FOREST_AREA,
-    INDONESIA_COASTAL_AREA
+    INDONESIA_COASTAL_AREA,
+    PLANTING_METHOD_OPTIONS
 )
 
 
@@ -184,6 +185,123 @@ def calculate_maturity_factor(years_since_planting: int) -> float:
         # Degradation phase - apply 2% annual degradation after year 40
         years_past_maturity = years_since_planting - 40
         return (1 - SEQUESTRATION_DEGRADATION_RATE) ** years_past_maturity
+
+
+# =============================================================================
+# Planting Distribution Methods
+# =============================================================================
+
+def calculate_planting_distribution(
+    total_area: float,
+    num_years: int,
+    method: str,
+    degradation_rates: List[float] = None
+) -> List[float]:
+    """
+    Calculate annual planting area distribution based on method.
+    
+    Args:
+        total_area: Total area to plant over the period
+        num_years: Number of years for planting
+        method: Distribution method ('equal', 'front_loaded', 'back_loaded', 's_curve', 'adaptive')
+        degradation_rates: Optional list of degradation rates per year (for 'adaptive' method)
+    
+    Returns:
+        List of annual planting areas (ha/year)
+    """
+    if num_years <= 0:
+        return []
+    
+    if method == "equal":
+        return _equal_distribution(total_area, num_years)
+    elif method == "front_loaded":
+        return _front_loaded_distribution(total_area, num_years)
+    elif method == "back_loaded":
+        return _back_loaded_distribution(total_area, num_years)
+    elif method == "s_curve":
+        return _s_curve_distribution(total_area, num_years)
+    elif method == "adaptive":
+        return _adaptive_distribution(total_area, num_years, degradation_rates)
+    else:
+        # Default to equal
+        return _equal_distribution(total_area, num_years)
+
+
+def _equal_distribution(total_area: float, n: int) -> List[float]:
+    """Equal area planted each year."""
+    annual = total_area / n
+    return [annual] * n
+
+
+def _front_loaded_distribution(total_area: float, n: int) -> List[float]:
+    """
+    Exponential decay - more planting in early years.
+    Formula: area_i = base × (1 - decay_rate)^i
+    Normalized so sum equals total_area.
+    """
+    decay_rate = 0.15  # 15% reduction per year
+    weights = [(1 - decay_rate) ** i for i in range(n)]
+    total_weight = sum(weights)
+    return [(w / total_weight) * total_area for w in weights]
+
+
+def _back_loaded_distribution(total_area: float, n: int) -> List[float]:
+    """
+    Exponential growth - ramp up planting over time.
+    Formula: area_i = base × (1 + growth_rate)^i
+    Normalized so sum equals total_area.
+    """
+    growth_rate = 0.12  # 12% increase per year
+    weights = [(1 + growth_rate) ** i for i in range(n)]
+    total_weight = sum(weights)
+    return [(w / total_weight) * total_area for w in weights]
+
+
+def _s_curve_distribution(total_area: float, n: int) -> List[float]:
+    """
+    Logistic S-curve - slow start, rapid mid-phase, plateau.
+    Formula: cumulative = max / (1 + e^(-k*(t - midpoint)))
+    Annual = cumulative[i] - cumulative[i-1]
+    """
+    k = 0.5  # Steepness of curve
+    midpoint = n / 2
+    
+    # Calculate cumulative values at each year boundary
+    cumulative = []
+    for i in range(n + 1):
+        c = total_area / (1 + math.exp(-k * (i - midpoint)))
+        cumulative.append(c)
+    
+    # Annual = difference between consecutive cumulative values
+    annual = [cumulative[i + 1] - cumulative[i] for i in range(n)]
+    
+    # Normalize to ensure sum equals total_area
+    current_sum = sum(annual)
+    if current_sum > 0:
+        annual = [(a / current_sum) * total_area for a in annual]
+    
+    return annual
+
+
+def _adaptive_distribution(total_area: float, n: int, degradation_rates: List[float] = None) -> List[float]:
+    """
+    Adaptive - prioritize planting based on degradation rates.
+    Plant more when existing forest degradation impact is highest (early years).
+    
+    Uses exponential decay as proxy for degradation urgency:
+    - Early years have highest weight (most urgent to offset degradation)
+    - Later years have lower weight
+    """
+    if degradation_rates is None or len(degradation_rates) != n:
+        # Use linear decay as proxy for degradation impact urgency
+        # Year 0 has weight n, year n-1 has weight 1
+        weights = [n - i for i in range(n)]
+    else:
+        # Normalize degradation rates as weights
+        weights = [max(0.1, rate) for rate in degradation_rates]
+    
+    total_weight = sum(weights)
+    return [(w / total_weight) * total_area for w in weights]
 
 
 def calculate_sequestration(input_params: CalculatorInput) -> CalculatorResult:
@@ -554,11 +672,20 @@ def _generate_new_planting_chart_data(
     new_planting_start = input_params.new_planting_start_year
     target_year = input_params.target_year
     
-    # Calculate planting installments
+    # Calculate planting installments based on selected distribution method
     # We plant from new_planting_start to target_year
     planting_period = [y for y in years if y >= new_planting_start and y <= target_year]
     num_years = len(planting_period)
-    annual_installment = total_area_target / num_years if num_years > 0 else 0
+    
+    # Get distribution based on selected planting method
+    if num_years > 0:
+        annual_installments = calculate_planting_distribution(
+            total_area=total_area_target,
+            num_years=num_years,
+            method=input_params.planting_method
+        )
+    else:
+        annual_installments = []
     
     # 2. Process existing sequestration (use absolute values for logic)
     # Even if they are negative in the chart, we need them positive for the gap math
@@ -577,14 +704,17 @@ def _generate_new_planting_chart_data(
         running_existing += seq
         cumulative_existing.append(running_existing)
         
-    # 3. Generate annual and cumulative area series
+    # 3. Generate annual and cumulative area series using distribution method
     annual_planting = []
     cumulative_planted = []
     total_planted = 0
+    planting_idx = 0
     
     for year in years:
         if year >= new_planting_start and year <= target_year:
-            area_this_year = annual_installment
+            # Use the pre-calculated distribution value
+            area_this_year = annual_installments[planting_idx] if planting_idx < len(annual_installments) else 0
+            planting_idx += 1
         else:
             area_this_year = 0
             

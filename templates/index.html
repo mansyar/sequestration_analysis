@@ -93,6 +93,19 @@
                   />
                 </div>
               </div>
+              <div class="form-group">
+                <label for="planting_method">Planting Strategy</label>
+                <select id="planting_method" name="planting_method" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary);">
+                  <option value="equal" {% if defaults.planting_method == 'equal' %}selected{% endif %}>📊 Equal Distribution</option>
+                  <option value="front_loaded" {% if defaults.planting_method == 'front_loaded' %}selected{% endif %}>📈 Front-loaded (Early Emphasis)</option>
+                  <option value="back_loaded" {% if defaults.planting_method == 'back_loaded' %}selected{% endif %}>📉 Back-loaded (Gradual Ramp-up)</option>
+                  <option value="s_curve" {% if defaults.planting_method == 's_curve' %}selected{% endif %}>🔄 S-Curve (Logistic Growth)</option>
+                  <option value="adaptive" {% if defaults.planting_method == 'adaptive' %}selected{% endif %}>🎯 Adaptive (Degradation Response)</option>
+                </select>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+                  Determines how the required planting area is distributed across years.
+                </p>
+              </div>
             </div>
 
             <!-- Emission Data Points (3-Point Model) -->
@@ -624,6 +637,13 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
+            title: {
+              display: true,
+              text: '',
+              color: colors.text,
+              font: { size: 14, weight: '600', family: "'Inter', sans-serif" },
+              padding: { top: 10, bottom: 15 }
+            },
             legend: {
               position: 'bottom',
               labels: { 
@@ -690,6 +710,10 @@
               },
               options: {
                 ...commonOptions,
+                plugins: {
+                  ...commonOptions.plugins,
+                  title: { ...commonOptions.plugins.title, text: 'Existing Forest Carbon Reduction' }
+                },
                 scales: {
                   ...commonOptions.scales,
                   y: {
@@ -741,6 +765,10 @@
               },
               options: {
                 ...commonOptions,
+                plugins: {
+                  ...commonOptions.plugins,
+                  title: { ...commonOptions.plugins.title, text: 'Gross Emission Trajectory' }
+                },
                 scales: {
                   ...commonOptions.scales,
                   y: {
@@ -791,6 +819,10 @@
               },
               options: {
                 ...commonOptions,
+                plugins: {
+                  ...commonOptions.plugins,
+                  title: { ...commonOptions.plugins.title, text: 'Carbon Balance' }
+                },
                 scales: {
                   ...commonOptions.scales,
                   y: {
@@ -823,6 +855,10 @@
               },
               options: {
                 ...commonOptions,
+                plugins: {
+                  ...commonOptions.plugins,
+                  title: { ...commonOptions.plugins.title, text: 'Annual New Planting Area' }
+                },
                 scales: {
                   ...commonOptions.scales,
                   y: {
@@ -854,6 +890,10 @@
               },
               options: {
                 ...commonOptions,
+                plugins: {
+                  ...commonOptions.plugins,
+                  title: { ...commonOptions.plugins.title, text: 'Cumulative Planted Area' }
+                },
                 scales: {
                   ...commonOptions.scales,
                   y: {
@@ -924,6 +964,10 @@
               },
               options: {
                 ...commonOptions,
+                plugins: {
+                  ...commonOptions.plugins,
+                  title: { ...commonOptions.plugins.title, text: 'National Net Carbon Balance' }
+                },
                 scales: {
                   ...commonOptions.scales,
                   y: {

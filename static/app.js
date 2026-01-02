@@ -54,7 +54,7 @@ function initSliders() {
 function initScenarioButtons() {
   const buttons = document.querySelectorAll(".scenario-btn");
   const scenarioInput = document.getElementById("scenarioInput");
-  const forestSlider = document.getElementById("forest_percent");
+  const forestSlider = document.getElementById("new_planting_forest_percent");
   const forestValue = document.getElementById("forestPercentValue");
   const belowGroundCheckbox = document.getElementById("include_below_ground");
 
@@ -108,27 +108,29 @@ function initFormValidation() {
   if (form) {
     form.addEventListener("submit", function (e) {
       // Validate year range
-      const startYear = parseInt(document.getElementById("start_year").value);
+      const initialYear = parseInt(
+        document.getElementById("initial_year").value
+      );
       const targetYear = parseInt(document.getElementById("target_year").value);
 
-      if (targetYear <= startYear) {
+      if (targetYear <= initialYear) {
         e.preventDefault();
-        alert("Target year must be greater than start year");
+        alert("Target year must be greater than initial year");
         return false;
       }
 
       // Validate emission targets
-      const emissions2030 = parseFloat(
-        document.getElementById("emissions_2030").value
+      const emissionsInitial = parseFloat(
+        document.getElementById("emissions_initial").value
       );
       const target2050 = parseFloat(
         document.getElementById("target_2050").value
       );
 
-      if (target2050 > emissions2030) {
+      if (target2050 > emissionsInitial) {
         if (
           !confirm(
-            "Target emissions are higher than baseline. This means no reduction is needed. Continue?"
+            "Target emissions are higher than initial emissions. This means no reduction is needed. Continue?"
           )
         ) {
           e.preventDefault();
@@ -236,8 +238,12 @@ async function generatePdf() {
     doc.setFontSize(10);
     const params = [
       [
-        "Baseline Emissions 2030",
-        document.getElementById("emissions_2030").value + " MtCO2e",
+        "Initial Emissions",
+        document.getElementById("emissions_initial").value + " MtCO2e",
+      ],
+      [
+        "Peak Emissions",
+        document.getElementById("emissions_peak").value + " MtCO2e",
       ],
       [
         "Target Emissions 2050",
@@ -248,8 +254,9 @@ async function generatePdf() {
         document.getElementById("sequestration_percent").value + "%",
       ],
       [
-        "Forest/Coastal Split",
-        document.getElementById("forest_percent").value + "% Forest",
+        "New Planting Allocation",
+        document.getElementById("new_planting_forest_percent").value +
+          "% Forest",
       ],
       [
         "Forest Degradation Rate",
@@ -314,29 +321,34 @@ async function generatePdf() {
     // --- PAGES 2-6: CHARTS (LANDSCAPE, ONE PER PAGE) ---
     const charts = [
       {
-        id: "roadmapChart",
-        chartKey: "roadmap",
-        title: "National Net Zero Strategy Roadmap (2023-2050)",
+        id: "existingForestRateChart",
+        chartKey: "existingRate",
+        title: "Existing Forest Carbon Reduction",
       },
       {
-        id: "areaComparisonChart",
-        chartKey: "area",
-        title: "Current vs Required Area by Risk",
+        id: "grossEmissionsChart",
+        chartKey: "grossEmissions",
+        title: "Gross Emission Trajectory",
       },
       {
-        id: "trajectoryChart",
-        chartKey: "trajectory",
-        title: "Reforestation Trajectory (2030-2050)",
+        id: "balanceChart",
+        chartKey: "balance",
+        title: "Carbon Balance",
       },
       {
-        id: "scenarioChart",
-        chartKey: "scenario",
-        title: "Risk Scenario Comparison (Stacked)",
+        id: "annualPlantingChart",
+        chartKey: "annualPlanting",
+        title: "Annual New Planting Area",
       },
       {
-        id: "emissionsChart",
-        chartKey: "emissions",
-        title: "Emissions Reduction Trajectory",
+        id: "cumulativeAreaChart",
+        chartKey: "cumulativeArea",
+        title: "Cumulative Planted Area",
+      },
+      {
+        id: "netZeroBalanceChart",
+        chartKey: "netZeroBalance",
+        title: "National Net Carbon Balance",
       },
     ];
 
@@ -421,7 +433,7 @@ async function generatePdf() {
       doc.setFontSize(8);
       doc.setTextColor(0, 0, 0); // Black for footer
       doc.text(
-        `Page ${i} of ${pageCount} | Indonesia Carbon Sequestration Calculator | https://calculator.id | IPCC Tier 1 Methodology`,
+        `Page ${i} of ${pageCount} | Indonesia Carbon Sequestration Calculator | https://sequestration-calculator.ansyar-world.top | IPCC Tier 1 Methodology`,
         pageWidth / 2,
         doc.internal.pageSize.getHeight() - 10,
         { align: "center" }
