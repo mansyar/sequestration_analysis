@@ -706,6 +706,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="{{ url_for('static', path='/app.js') }}"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function() {
@@ -742,6 +743,7 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
+            datalabels: { display: false },
             title: {
               display: true,
               text: '',
@@ -772,7 +774,20 @@
           scales: {
             x: {
               grid: { display: false },
-              ticks: { color: colors.text, font: { size: 10 } },
+              ticks: { 
+                color: colors.text, 
+                font: { size: 10 },
+                maxRotation: 0,
+                autoSkip: false,
+                callback: function(value, index) {
+                  // Default: Access label from scale context or assumption it's correct index
+                  // Since we don't have direct access to 'chartData' generically here easily without knowing which dataset,
+                  // we'll rely on Chart.js to pass the label if we use this.getLabelForValue
+                  const label = this.getLabelForValue(value);
+                  const year = parseInt(label);
+                  return !isNaN(year) && year % 5 === 0 ? year : '';
+                }
+              },
               title: {
                 display: true,
                 text: 'Simulation Year',
@@ -845,7 +860,19 @@
                     data: chartData.gross_emissions.sparse_data_points,
                     backgroundColor: colors.emissions,
                     borderRadius: 4,
-                    maxBarThickness: 40
+                    maxBarThickness: 40,
+                    datalabels: {
+                      display: function(context) {
+                        return context.dataset.data[context.dataIndex] !== null;
+                      },
+                      anchor: 'end',
+                      align: 'top',
+                      formatter: function(value, context) {
+                        return chartData.gross_emissions.years[context.dataIndex];
+                      },
+                      color: colors.text,
+                      font: { size: 11, weight: 'bold' }
+                    }
                   },
                   {
                     type: 'line',
@@ -876,6 +903,23 @@
                 },
                 scales: {
                   ...commonOptions.scales,
+                  x: {
+                    ...commonOptions.scales.x,
+                    ticks: {
+                      ...commonOptions.scales.x.ticks,
+                      callback: function(value, index) {
+                        const year = chartData.gross_emissions.years[index];
+                        const dataPoint = chartData.gross_emissions.sparse_data_points[index];
+                        // Show label for years with actual bar data (non-null and > 0) or at 10-year intervals
+                        if ((dataPoint !== null && dataPoint > 0) || year % 10 === 0) {
+                          return year;
+                        }
+                        return '';
+                      },
+                      maxRotation: 0,
+                      autoSkip: false
+                    }
+                  },
                   y: {
                     ...commonOptions.scales.y,
                     title: { ...commonOptions.scales.y.title, text: 'Gross Emissions (MtCO₂e/yr)' }
