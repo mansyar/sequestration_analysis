@@ -372,7 +372,7 @@ h6 {
 /* Results Display */
 .result-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-md);
 }
 
@@ -603,13 +603,13 @@ tr:hover td {
   display: flex;
   align-items: flex-start;
   gap: 0;
-  max-width: 1400px; /* Wider for dashboard */
+  max-width: 1800px; /* Wider for dashboard */
   margin: 0 auto;
 }
 
 .dashboard-sidebar {
-  width: 340px;
-  min-width: 340px;
+  width: 320px;
+  min-width: 320px;
   position: sticky;
   top: 0;
   height: 100vh;

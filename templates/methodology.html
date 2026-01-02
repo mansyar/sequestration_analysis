@@ -30,6 +30,48 @@
         </p>
       </header>
 
+      <!-- Abstract Section -->
+      <div
+        class="section-card"
+        style="
+          background: linear-gradient(
+            135deg,
+            rgba(34, 197, 94, 0.1) 0%,
+            rgba(59, 130, 246, 0.1) 100%
+          );
+          border-left: 4px solid var(--primary);
+        "
+      >
+        <h2>📄 Abstract</h2>
+        <p style="font-style: italic; line-height: 1.8">
+          This technical document presents a comprehensive methodology for
+          estimating forest and coastal ecosystem restoration requirements to
+          achieve Indonesia's 2050 carbon neutrality targets. The model
+          integrates <strong>IPCC 2006 Tier 1 default parameters</strong> with a
+          <strong>cohort-based sequestration framework</strong> that accounts
+          for biological growth lags, forest maturity curves, and ecosystem
+          degradation dynamics. Key innovations include: (1) a
+          <strong>3-point emission trajectory model</strong> with linear
+          interpolation between initial, peak, and target years; (2)
+          <strong>five planting distribution strategies</strong> (Equal,
+          Front-loaded, Back-loaded, S-Curve, and Adaptive) to optimize
+          reforestation scheduling; (3)
+          <strong>sigmoid-based maturity functions</strong> reflecting
+          establishment, rapid growth, and carbon equilibrium phases; and (4)
+          <strong>configurable existing forest carbon status</strong> (Mature,
+          Mixed, Active) to account for varying forest age structures. The
+          methodology produces cumulative carbon flux projections aligned with
+          Nationally Determined Contribution (NDC) reporting requirements and
+          provides scenario-based sensitivity analysis across optimistic,
+          moderate, and pessimistic risk factors.
+        </p>
+        <div class="info-box" style="margin-top: 1rem">
+          <strong>Keywords:</strong> Carbon sequestration, IPCC Tier 1,
+          Reforestation modeling, NDC targets, Indonesia FOLU, Cohort-based
+          carbon accounting, Blue carbon
+        </div>
+      </div>
+
       <!-- Section 1: Overview -->
       <div class="section-card">
         <h2>🎯 Overview</h2>
@@ -203,6 +245,136 @@
         </div>
       </div>
 
+      <!-- Section 2b: Planting Distribution Methods -->
+      <div class="section-card">
+        <h2>🌱 Planting Distribution Methods</h2>
+
+        <p>
+          The calculator offers
+          <strong>five distinct planting distribution strategies</strong>
+          to allocate the total required planting area across the implementation
+          period. Each method reflects different policy priorities and
+          implementation constraints.
+        </p>
+
+        <h3>Method 1: Equal Distribution</h3>
+        <div class="formula-box">
+          <div class="formula">A<sub>i</sub> = A<sub>total</sub> / n</div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            Where A<sub>i</sub> is the area planted in year i, A<sub>total</sub>
+            is total area required, and n is the number of planting years.
+            <strong>Policy rationale:</strong> Ensures consistent annual budgets
+            and workforce requirements.
+          </p>
+        </div>
+
+        <h3>Method 2: Front-loaded (Early Emphasis)</h3>
+        <div class="formula-box">
+          <div class="formula">
+            w<sub>i</sub> = (1 - r)<sup>i</sup>, &nbsp; A<sub>i</sub> = (w<sub
+              >i</sub
+            >
+            / Σw) × A<sub>total</sub>
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            Exponential decay with r = 0.15 (15% annual reduction).
+            <strong>Policy rationale:</strong>
+            Maximizes early carbon accumulation; planted forests have longer
+            time to mature before 2050.
+          </p>
+        </div>
+
+        <h3>Method 3: Back-loaded (Gradual Ramp-up)</h3>
+        <div class="formula-box">
+          <div class="formula">
+            w<sub>i</sub> = (1 + g)<sup>i</sup>, &nbsp; A<sub>i</sub> = (w<sub
+              >i</sub
+            >
+            / Σw) × A<sub>total</sub>
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            Exponential growth with g = 0.12 (12% annual increase).
+            <strong>Policy rationale:</strong>
+            Allows time for capacity building, nursery development, and
+            institutional scaling.
+          </p>
+        </div>
+
+        <h3>Method 4: S-Curve (Logistic Growth)</h3>
+        <div class="formula-box">
+          <div class="formula">
+            C(t) = A<sub>total</sub> / (1 + e<sup>-k(t - m)</sup>), &nbsp; A<sub
+              >i</sub
+            >
+            = C(i) - C(i-1)
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            Logistic curve with k = 0.5 (steepness) and m = n/2 (midpoint).
+            <strong>Policy rationale:</strong>
+            Models realistic adoption curves—slow initial uptake, rapid scaling,
+            and plateau as suitable land becomes scarce (Rogers, 2003).
+          </p>
+        </div>
+
+        <h3>Method 5: Adaptive (Degradation Response)</h3>
+        <div class="formula-box">
+          <div class="formula">
+            w<sub>i</sub> = n - i, &nbsp; A<sub>i</sub> = (w<sub>i</sub> / Σw) ×
+            A<sub>total</sub>
+          </div>
+          <p
+            style="
+              margin-top: 0.5rem;
+              font-size: 0.9rem;
+              color: var(--text-muted);
+            "
+          >
+            Linear decay prioritizing early years.
+            <strong>Policy rationale:</strong>
+            Compensates for ongoing degradation of existing forests—earlier
+            planting offsets carbon losses from forest degradation more
+            effectively.
+          </p>
+        </div>
+
+        <div class="info-box">
+          <strong>Variable Definitions:</strong><br />
+          • A<sub>i</sub> = Area planted in year i (hectares)<br />
+          • A<sub>total</sub> = Total area required over planning period
+          (hectares)<br />
+          • n = Number of planting years<br />
+          • w<sub>i</sub> = Weight for year i (normalized to sum to 1)<br />
+          • r = Decay rate (0.15 for front-loaded)<br />
+          • g = Growth rate (0.12 for back-loaded)<br />
+          • k = Steepness parameter for S-curve (0.5)<br />
+          • m = Midpoint of S-curve (n/2)
+        </div>
+      </div>
+
       <!-- Section 3: IPCC Parameters -->
       <div class="section-card">
         <h2>📊 IPCC Default Parameters & Scientific Basis</h2>
@@ -330,7 +502,146 @@
               <td>540 MtCO₂e</td>
               <td>Indonesia Long-Term Strategy (LTS-LCCR 2050)</td>
             </tr>
+        </div>
+      </div>
+
+      <!-- Section 3b: 3-Point Emission Trajectory Model -->
+      <div class="section-card">
+        <h2>📈 3-Point Emission Trajectory Model</h2>
+        
+        <p>
+          Unlike simplified two-point models, this calculator employs a <strong>3-point 
+          emission trajectory</strong> that captures the expected near-term emission increase 
+          before the long-term decline toward net-zero targets.
+        </p>
+
+        <h3>Model Structure</h3>
+        <div class="formula-box">
+          <h4>Phase 1: Initial to Peak (t₀ → t₁)</h4>
+          <div class="formula">
+            E(t) = E₀ + [(E₁ - E₀) / (t₁ - t₀)] × (t - t₀)
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            Linear interpolation from initial year (2023) to peak emission year (2030).
+          </p>
+        </div>
+
+        <div class="formula-box">
+          <h4>Phase 2: Peak to Target (t₁ → t₂)</h4>
+          <div class="formula">
+            E(t) = E₁ - [(E₁ - E₂) / (t₂ - t₁)] × (t - t₁)
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            Linear decline from peak (2030) to target year (2050).
+          </p>
+        </div>
+
+        <div class="table-responsive">
+          <table class="parameter-table">
+            <tr>
+              <th>Variable</th>
+              <th>Default Value</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <td>t₀ (Initial Year)</td>
+              <td>2023</td>
+              <td>Baseline year for emission trajectory</td>
+            </tr>
+            <tr>
+              <td>t₁ (Peak Year)</td>
+              <td>2030</td>
+              <td>Year of maximum emissions (BAU scenario)</td>
+            </tr>
+            <tr>
+              <td>t₂ (Target Year)</td>
+              <td>2050</td>
+              <td>Net-zero target year</td>
+            </tr>
+            <tr>
+              <td>E₀ (Initial Emissions)</td>
+              <td>1,200 MtCO₂e</td>
+              <td>Current national emissions</td>
+            </tr>
+            <tr>
+              <td>E₁ (Peak Emissions)</td>
+              <td>1,244 MtCO₂e</td>
+              <td>BAU scenario peak (Indonesia NDC, 2022)</td>
+            </tr>
+            <tr>
+              <td>E₂ (Target Emissions)</td>
+              <td>540 MtCO₂e</td>
+              <td>LTS-LCCR 2050 target</td>
+            </tr>
           </table>
+        </div>
+
+        <div class="warning-box">
+          <strong>Limitation:</strong> Linear interpolation assumes steady policy progression. 
+          Real-world pathways may exhibit non-linear patterns due to technology adoption 
+          S-curves, policy delays, or economic fluctuations.
+        </div>
+      </div>
+
+      <!-- Section 3c: Existing Forest Carbon Status -->
+      <div class="section-card">
+        <h2>🌳 Existing Forest Carbon Status</h2>
+        
+        <p>
+          The carbon balance contribution from <strong>existing forests</strong> depends on 
+          their age structure and ecological status. The calculator offers three configurable 
+          options based on forest carbon equilibrium theory (Luyssaert et al., 2008; Odum, 1969).
+        </p>
+
+        <div class="table-responsive">
+          <table class="parameter-table">
+            <tr>
+              <th>Status</th>
+              <th>Activity Factor (α)</th>
+              <th>Scientific Basis</th>
+            </tr>
+            <tr>
+              <td>🌲 <strong>Mature</strong></td>
+              <td>0.0 (0%)</td>
+              <td>
+                Old-growth forests at carbon equilibrium—CO₂ uptake ≈ respiration + decomposition. 
+                Conservative assumption for net-zero planning.
+              </td>
+            </tr>
+            <tr>
+              <td>🌿 <strong>Mixed</strong></td>
+              <td>0.5 (50%)</td>
+              <td>
+                Landscape includes both mature and regenerating stands. Partial net uptake 
+                from secondary forests and regrowth.
+              </td>
+            </tr>
+            <tr>
+              <td>🌱 <strong>Active</strong></td>
+              <td>1.0 (100%)</td>
+              <td>
+                Predominantly young, actively growing forests. Full sequestration potential, 
+                optimistic assumption.
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="formula-box">
+          <h4>Existing Forest Sequestration Formula</h4>
+          <div class="formula">
+            S<sub>existing</sub>(t) = (A<sub>forest</sub> × R<sub>forest</sub> + A<sub>coastal</sub> × R<sub>coastal</sub>) × α × (1 - d)<sup>(t-t₀)</sup>
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            Where α is the activity factor (0, 0.5, or 1.0), d is the annual degradation rate 
+            (default 2%), and (1-d)<sup>t</sup> represents compound capacity decline.
+          </p>
+        </div>
+
+        <div class="info-box">
+          <strong>Default Setting:</strong> The calculator defaults to <em>Mixed (50%)</em> 
+          as it balances conservative planning with recognition that Indonesia's forest 
+          estate includes significant secondary forest areas undergoing recovery.
         </div>
       </div>
 
@@ -430,6 +741,122 @@
           <strong>Important:</strong> This carbon loss from degrading existing
           forests must be <em>replaced</em> by new forests, in addition to
           achieving the original sequestration target.
+        </div>
+      </div>
+
+      <!-- Section 5b: Forest Maturity Model -->
+      <div class="section-card">
+        <h2>🌲 Forest Maturity Model</h2>
+        
+        <p>
+          New forests do not sequester carbon at full capacity immediately after planting. 
+          The <strong>maturity factor M(t)</strong> models the fraction of potential 
+          sequestration capacity based on years since planting. This model follows 
+          IPCC-recommended growth curves (Chapin et al., 2002; Baldocchi, 2008).
+        </p>
+
+        <h3>Phase 1: Establishment (Years 0-5)</h3>
+        <div class="formula-box">
+          <div class="formula">
+            M(t) = 0 &nbsp;&nbsp; for &nbsp; t < 5
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            <strong>Biological basis:</strong> Root system development, seedling mortality, 
+            canopy establishment. Net carbon flux may be near zero or slightly negative 
+            due to soil disturbance and respiration.
+          </p>
+        </div>
+
+        <h3>Phase 2: Rapid Growth (Years 5-15)</h3>
+        <div class="formula-box">
+          <div class="formula">
+            M(t) = 0.8 × [1 / (1 + e<sup>-0.5(t-10)</sup>)] &nbsp;&nbsp; for &nbsp; 5 ≤ t < 15
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            <strong>Sigmoid function</strong> models exponential early growth transitioning 
+            to a plateau. Maximum capacity in this phase is 80% of full potential.
+          </p>
+        </div>
+
+        <h3>Phase 3: Full Maturity (Years 15-40)</h3>
+        <div class="formula-box">
+          <div class="formula">
+            M(t) = 0.8 + 0.2 × [(t - 15) / 25] &nbsp;&nbsp; for &nbsp; 15 ≤ t < 40
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            <strong>Linear increase</strong> from 80% to 100% over 25 years as forest 
+            reaches full structural maturity and maximum carbon storage capacity.
+          </p>
+        </div>
+
+        <h3>Phase 4: Equilibrium & Decline (Years 40+)</h3>
+        <div class="formula-box">
+          <div class="formula">
+            M(t) = (1 - d)<sup>(t-40)</sup> &nbsp;&nbsp; for &nbsp; t ≥ 40
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            <strong>Compound decay</strong> with d = 0.02 (2% annual degradation). 
+            Mature forests approach carbon equilibrium where uptake ≈ respiration + mortality.
+          </p>
+        </div>
+
+        <div class="info-box">
+          <strong>Implementation Note:</strong> The 5-year biological growth lag is critical 
+          for policy planning. Areas planted in 2025 will not contribute meaningful sequestration 
+          until approximately 2030, emphasizing the need for early action.
+        </div>
+      </div>
+
+      <!-- Section 5c: Cohort-Based Sequestration Model -->
+      <div class="section-card">
+        <h2>📊 Cohort-Based Sequestration Model</h2>
+        
+        <p>
+          Unlike simplified models that apply a single growth rate to total planted area, 
+          this calculator uses a <strong>cohort summation approach</strong> where each 
+          year's planting is tracked as a separate cohort with its own maturity trajectory.
+        </p>
+
+        <h3>Annual Cohort Contribution</h3>
+        <div class="formula-box">
+          <div class="formula">
+            S<sub>cohort</sub>(p, y) = A<sub>p</sub> × R<sub>weighted</sub> × M(y - p)
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            Where A<sub>p</sub> is area planted in year p, R<sub>weighted</sub> is the 
+            weighted sequestration rate, and M(y-p) is the maturity factor for a forest 
+            of age (y-p) years.
+          </p>
+        </div>
+
+        <h3>Total New Sink Capacity</h3>
+        <div class="formula-box">
+          <div class="formula">
+            S<sub>new</sub>(y) = Σ<sub>p=t₀</sub><sup>y</sup> S<sub>cohort</sub>(p, y)
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            The total sequestration from new plantings in year y is the <strong>sum of 
+            contributions from all cohorts</strong> planted from the start year t₀ through year y.
+          </p>
+        </div>
+
+        <h3>Cumulative Carbon Accounting</h3>
+        <div class="formula-box">
+          <div class="formula">
+            C<sub>total</sub>(Y) = Σ<sub>y=t₀</sub><sup>Y</sup> [S<sub>existing</sub>(y) + S<sub>new</sub>(y)]
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+            <strong>Cumulative carbon flux</strong> used in Figures 3 and 6 represents 
+            the total accumulated sequestration from the start year through year Y. 
+            This metric aligns with NDC reporting requirements for cumulative emission reductions.
+          </p>
+        </div>
+
+        <div class="info-box">
+          <strong>Why Cumulative Metrics:</strong> Policy targets (e.g., Paris Agreement) 
+          are typically expressed in terms of cumulative emissions budgets. Displaying 
+          cumulative flux allows direct comparison between total emissions and total 
+          sequestration over the planning horizon.
         </div>
       </div>
 
