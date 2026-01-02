@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
@@ -177,15 +177,7 @@
         <h3 class="mb-2" style="font-size: 1rem; color: var(--text-secondary)">
           Key Equations
         </h3>
-        <div
-          style="
-            background: var(--bg-secondary);
-            padding: 1rem;
-            border-radius: var(--radius-md);
-            font-family: var(--font-mono);
-            margin-bottom: 1rem;
-          "
-        >
+        <div class="formula-box">
           <p><strong>Annual CO₂ Sequestration:</strong></p>
           <p style="color: var(--accent-primary)">
             ΔC = Biomass Growth × Carbon Fraction × (44/12)
@@ -196,14 +188,7 @@
           </p>
         </div>
 
-        <div
-          style="
-            background: var(--bg-secondary);
-            padding: 1rem;
-            border-radius: var(--radius-md);
-            font-family: var(--font-mono);
-          "
-        >
+        <div class="formula-box">
           <p><strong>Full Biomass (with below-ground):</strong></p>
           <p style="color: var(--accent-primary)">
             Total Rate = Above-ground Rate × (1 + R:S Ratio)

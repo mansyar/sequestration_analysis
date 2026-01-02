@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
@@ -19,7 +19,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </head>
   <body>
-    <div class="container">
+    <div>
       <!-- Header -->
       <header class="header">
         <h1>🌿 Carbon Sequestration Calculator</h1>
@@ -35,9 +35,9 @@
       </nav>
 
       <form method="POST" action="/calculate" id="calculatorForm">
-        <div class="grid grid-2">
-          <!-- Left Column: Inputs -->
-          <div>
+        <div class="dashboard-layout">
+          <!-- Left Column: Inputs (Sidebar) -->
+          <aside class="dashboard-sidebar">
             <!-- Time Parameters -->
             <div class="card">
               <div class="card-header">
@@ -279,15 +279,7 @@
               </div>
 
               <!-- Risk Scenarios (Checkboxes for chart comparison) -->
-              <div
-                class="form-group"
-                style="
-                  background: rgba(239, 68, 68, 0.1);
-                  padding: 1rem;
-                  border-radius: var(--radius-md);
-                  border: 1px solid rgba(239, 68, 68, 0.3);
-                "
-              >
+              <div class="form-group warning-box">
                 <label
                   style="
                     color: var(--accent-danger);
@@ -379,16 +371,8 @@
               </div>
 
               <!-- Forest Degradation Rate -->
-              <div
-                class="form-group"
-                style="
-                  background: rgba(245, 158, 11, 0.1);
-                  padding: 1rem;
-                  border-radius: var(--radius-md);
-                  border: 1px solid rgba(245, 158, 11, 0.3);
-                "
-              >
-                <label for="degradation_rate" style="color: #f59e0b">
+              <div class="form-group warning-box">
+                <label for="degradation_rate" style="color: var(--accent-warning)">
                   📉 Forest Degradation Rate (% per year):
                   <span class="range-value" id="degradationRateValue"
                     >{{ defaults.degradation_rate|round(1) }}%</span
@@ -426,10 +410,10 @@
               </button>
             </div>
 
-          </div>
+          </aside>
 
-          <!-- Right Column: Results -->
-          <div>
+          <!-- Right Column: Results (Main) -->
+          <main class="dashboard-main">
             <!-- Summary Results -->
             <div class="card mb-6">
               <div class="card-header">
@@ -463,6 +447,10 @@
                 📄 &nbsp; Export Technical Analysis (PDF)
               </button>
             </div>
+
+
+
+            <div class="charts-grid">
 
             <!-- Figure 1: Existing Forest Carbon Reduction -->
             <div class="card mb-6">
@@ -518,7 +506,12 @@
               <p class="chart-caption">Total accumulated restoration area including required projection beyond target year.</p>
             </div>
 
-            <!-- Figure 6: Net Carbon Balance -->
+
+
+
+
+
+            <!-- Figure 6: National Net Carbon Balance -->
             <div class="card mb-6">
               <div class="card-header">
                 <h2>Figure 6: National Net Carbon Balance</h2>
@@ -528,8 +521,8 @@
               </div>
               <p class="chart-caption">Comprehensive view of net-zero achievement, combining gross emissions with both existing and new carbon sinks.</p>
             </div>
-
-          </div>
+            </div>
+          </main>
         </div>
       </form>
 
@@ -615,15 +608,15 @@
         
         // 2. Color Palette
         const colors = {
-          forest: "#22c55e",
-          forestLight: "rgba(34, 197, 94, 0.2)",
-          coastal: "#0ea5e9",
-          coastalLight: "rgba(14, 165, 233, 0.2)",
-          emissions: "#64748b",
-          balance: "#f43f5e",
-          target: "#ef4444",
-          grid: "rgba(255, 255, 255, 0.05)",
-          text: "#94a3b8"
+          forest: "#15803d",
+          forestLight: "rgba(21, 128, 61, 0.1)",
+          coastal: "#0369a1",
+          coastalLight: "rgba(3, 105, 161, 0.1)",
+          emissions: "#475569",
+          balance: "#be123c",
+          target: "#b45309",
+          grid: "rgba(0, 0, 0, 0.03)",
+          text: "#64748b"
         };
 
         const commonOptions = {
@@ -801,7 +794,7 @@
                   ...commonOptions.scales,
                   y: {
                     ...commonOptions.scales.y,
-                    title: { ...commonOptions.scales.y.title, text: 'Carbon Flux (MtCO₂e/yr)' },
+                    title: { ...commonOptions.scales.y.title, text: 'Cumulative Carbon Flux (MtCO₂e)' },
                     grid: {
                       ...commonOptions.scales.y.grid,
                       color: (context) => context.tick?.value === 0 ? 'rgba(255, 255, 255, 0.4)' : colors.grid
@@ -934,7 +927,7 @@
                   ...commonOptions.scales,
                   y: {
                     ...commonOptions.scales.y,
-                    title: { ...commonOptions.scales.y.title, text: 'Carbon Flux (MtCO₂e/yr)' },
+                    title: { ...commonOptions.scales.y.title, text: 'Cumulative Carbon Flux (MtCO₂e)' },
                     grid: {
                       ...commonOptions.scales.y.grid,
                       color: (context) => context.tick?.value === 0 ? 'rgba(255, 255, 255, 0.4)' : colors.grid

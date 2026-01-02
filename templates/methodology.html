@@ -4,99 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Methodology & Theory - Carbon Sequestration Calculator</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='/index.css') }}" />
-    <style>
-      .methodology-container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-      .formula-box {
-        background: rgba(16, 185, 129, 0.1);
-        border: 1px solid rgba(16, 185, 129, 0.3);
-        border-radius: var(--radius-md);
-        padding: 1.5rem;
-        margin: 1.5rem 0;
-        font-family: "Courier New", monospace;
-      }
-      .formula-box h4 {
-        color: var(--accent-success);
-        margin-bottom: 1rem;
-      }
-      .formula-box .formula {
-        font-size: 1.1rem;
-        color: var(--text-primary);
-        background: rgba(0, 0, 0, 0.3);
-        padding: 1rem;
-        border-radius: var(--radius-sm);
-        overflow-x: auto;
-      }
-      .parameter-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 1.5rem 0;
-      }
-      .parameter-table th,
-      .parameter-table td {
-        padding: 0.75rem 1rem;
-        border: 1px solid var(--border-color);
-        text-align: left;
-      }
-      .parameter-table th {
-        background: rgba(16, 185, 129, 0.2);
-        color: var(--accent-success);
-      }
-      .parameter-table tr:nth-child(even) {
-        background: rgba(255, 255, 255, 0.03);
-      }
-      .section-card {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-lg);
-        padding: 2rem;
-        margin-bottom: 2rem;
-      }
-      .section-card h2 {
-        color: var(--accent-success);
-        border-bottom: 2px solid var(--accent-success);
-        padding-bottom: 0.5rem;
-        margin-bottom: 1.5rem;
-      }
-      .section-card h3 {
-        color: var(--text-primary);
-        margin-top: 1.5rem;
-        margin-bottom: 0.75rem;
-      }
-      .back-link {
-        display: inline-block;
-        margin-bottom: 2rem;
-        color: var(--accent-success);
-        text-decoration: none;
-        font-weight: 500;
-      }
-      .back-link:hover {
-        text-decoration: underline;
-      }
-      .highlight {
-        background: rgba(245, 158, 11, 0.2);
-        padding: 0.25rem 0.5rem;
-        border-radius: var(--radius-sm);
-      }
-      .warning-box {
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        border-radius: var(--radius-md);
-        padding: 1rem;
-        margin: 1rem 0;
-      }
-      .info-box {
-        background: rgba(59, 130, 246, 0.1);
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        border-radius: var(--radius-md);
-        padding: 1rem;
-        margin: 1rem 0;
-      }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}" />
   </head>
   <body>
     <div class="methodology-container">
@@ -294,37 +208,41 @@
           changes in different ecosystem types. These values are derived from
           meta-analyses of field studies worldwide (Mokany et al., 2006).
         </p>
-        <table class="parameter-table">
-          <tr>
-            <th>Ecosystem Type</th>
-            <th>Rate (tCO₂/ha/yr)</th>
-            <th>Source & Calculation</th>
-          </tr>
-          <tr>
-            <td>🌲 Tropical Rainforest</td>
-            <td>6.9 - 11.0</td>
-            <td>
-              IPCC 2006, Table 4.9: 4.0 t dm/ha/yr × 0.47 CF × 3.67 = 6.89
-              tCO₂/ha/yr (above-ground only). With below-ground: 11.0 tCO₂/ha/yr
-            </td>
-          </tr>
-          <tr>
-            <td>🌊 Coastal/Mangrove</td>
-            <td>6.6 - 13.0</td>
-            <td>
-              IPCC Wetlands Supplement (2014); Alongi (2014) reports 179.6 g
-              C/m²/yr = 6.59 tCO₂/ha/yr. Murdiyarso et al. (2015) reports higher
-              rates in Indonesian systems.
-            </td>
-          </tr>
-          <tr>
-            <td>🌿 Secondary/Regrowth Forest</td>
-            <td>4.0 - 8.0</td>
-            <td>
-              Van Breugel et al. (2011); rate depends on age and prior land use
-            </td>
-          </tr>
-        </table>
+        <div class="table-responsive">
+          <table class="parameter-table">
+            <tr>
+              <th>Ecosystem Type</th>
+              <th>Rate (tCO₂/ha/yr)</th>
+              <th>Source & Calculation</th>
+            </tr>
+            <tr>
+              <td>🌲 Tropical Rainforest</td>
+              <td>6.9 - 11.0</td>
+              <td>
+                IPCC 2006, Table 4.9: 4.0 t dm/ha/yr × 0.47 CF × 3.67 = 6.89
+                tCO₂/ha/yr (above-ground only). With below-ground: 11.0
+                tCO₂/ha/yr
+              </td>
+            </tr>
+            <tr>
+              <td>🌊 Coastal/Mangrove</td>
+              <td>6.6 - 13.0</td>
+              <td>
+                IPCC Wetlands Supplement (2014); Alongi (2014) reports 179.6 g
+                C/m²/yr = 6.59 tCO₂/ha/yr. Murdiyarso et al. (2015) reports
+                higher rates in Indonesian systems.
+              </td>
+            </tr>
+            <tr>
+              <td>🌿 Secondary/Regrowth Forest</td>
+              <td>4.0 - 8.0</td>
+              <td>
+                Van Breugel et al. (2011); rate depends on age and prior land
+                use
+              </td>
+            </tr>
+          </table>
+        </div>
 
         <div class="info-box">
           <strong>Conversion Formula:</strong> tCO₂/ha/yr = (Biomass Growth Rate
@@ -339,28 +257,30 @@
           IPCC provides root-to-shoot ratios to estimate below-ground carbon
           from above-ground measurements (Mokany et al., 2006).
         </p>
-        <table class="parameter-table">
-          <tr>
-            <th>Forest Type</th>
-            <th>Root-to-Shoot Ratio</th>
-            <th>Source</th>
-          </tr>
-          <tr>
-            <td>Tropical Moist Forest</td>
-            <td>0.37</td>
-            <td>IPCC 2006, Table 4.4; Cairns et al. (1997)</td>
-          </tr>
-          <tr>
-            <td>Tropical Dry Forest</td>
-            <td>0.28</td>
-            <td>IPCC 2006, Table 4.4</td>
-          </tr>
-          <tr>
-            <td>Mangrove Forest</td>
-            <td>0.39 - 0.49</td>
-            <td>Komiyama et al. (2008)</td>
-          </tr>
-        </table>
+        <div class="table-responsive">
+          <table class="parameter-table">
+            <tr>
+              <th>Forest Type</th>
+              <th>Root-to-Shoot Ratio</th>
+              <th>Source</th>
+            </tr>
+            <tr>
+              <td>Tropical Moist Forest</td>
+              <td>0.37</td>
+              <td>IPCC 2006, Table 4.4; Cairns et al. (1997)</td>
+            </tr>
+            <tr>
+              <td>Tropical Dry Forest</td>
+              <td>0.28</td>
+              <td>IPCC 2006, Table 4.4</td>
+            </tr>
+            <tr>
+              <td>Mangrove Forest</td>
+              <td>0.39 - 0.49</td>
+              <td>Komiyama et al. (2008)</td>
+            </tr>
+          </table>
+        </div>
 
         <h3>Indonesia-Specific Data</h3>
         <p>
@@ -368,43 +288,45 @@
           statistics and peer-reviewed studies specific to Indonesian
           ecosystems.
         </p>
-        <table class="parameter-table">
-          <tr>
-            <th>Parameter</th>
-            <th>Value</th>
-            <th>Source</th>
-          </tr>
-          <tr>
-            <td>Current Forest Area</td>
-            <td>120,343,230 ha</td>
-            <td>KLHK - Indonesia Forest Statistics 2022</td>
-          </tr>
-          <tr>
-            <td>Coastal/Mangrove Area</td>
-            <td>3.36 - 5.32 million ha</td>
-            <td>Alongi et al. (2016); Indonesia Mangrove Alliance 2022</td>
-          </tr>
-          <tr>
-            <td>Mangrove Carbon Stock</td>
-            <td>950.5 Mg C/ha (median)</td>
-            <td>Alongi et al. (2016) DOI: 10.1007/s11273-015-9446-y</td>
-          </tr>
-          <tr>
-            <td>Deforestation Rate (2015-2020)</td>
-            <td>650,000 ha/yr</td>
-            <td>FAO Global Forest Resources Assessment 2020</td>
-          </tr>
-          <tr>
-            <td>2030 Emissions Baseline</td>
-            <td>1,244 MtCO₂e</td>
-            <td>Indonesia Enhanced NDC 2022 (BAU scenario)</td>
-          </tr>
-          <tr>
-            <td>2050 Target</td>
-            <td>540 MtCO₂e</td>
-            <td>Indonesia Long-Term Strategy (LTS-LCCR 2050)</td>
-          </tr>
-        </table>
+        <div class="table-responsive">
+          <table class="parameter-table">
+            <tr>
+              <th>Parameter</th>
+              <th>Value</th>
+              <th>Source</th>
+            </tr>
+            <tr>
+              <td>Current Forest Area</td>
+              <td>120,343,230 ha</td>
+              <td>KLHK - Indonesia Forest Statistics 2022</td>
+            </tr>
+            <tr>
+              <td>Coastal/Mangrove Area</td>
+              <td>3.36 - 5.32 million ha</td>
+              <td>Alongi et al. (2016); Indonesia Mangrove Alliance 2022</td>
+            </tr>
+            <tr>
+              <td>Mangrove Carbon Stock</td>
+              <td>950.5 Mg C/ha (median)</td>
+              <td>Alongi et al. (2016) DOI: 10.1007/s11273-015-9446-y</td>
+            </tr>
+            <tr>
+              <td>Deforestation Rate (2015-2020)</td>
+              <td>650,000 ha/yr</td>
+              <td>FAO Global Forest Resources Assessment 2020</td>
+            </tr>
+            <tr>
+              <td>2030 Emissions Baseline</td>
+              <td>1,244 MtCO₂e</td>
+              <td>Indonesia Enhanced NDC 2022 (BAU scenario)</td>
+            </tr>
+            <tr>
+              <td>2050 Target</td>
+              <td>540 MtCO₂e</td>
+              <td>Indonesia Long-Term Strategy (LTS-LCCR 2050)</td>
+            </tr>
+          </table>
+        </div>
       </div>
 
       <!-- Section 4: Risk Scenarios -->
@@ -433,31 +355,33 @@
           </li>
         </ul>
 
-        <table class="parameter-table">
-          <tr>
-            <th>Scenario</th>
-            <th>Risk Factor</th>
-            <th>Interpretation</th>
-          </tr>
-          <tr style="color: #22c55e">
-            <td>🟢 Optimistic</td>
-            <td>0%</td>
-            <td>
-              Best case: all planted forests survive and sequester at full
-              capacity
-            </td>
-          </tr>
-          <tr style="color: #f59e0b">
-            <td>🟡 Moderate</td>
-            <td>20%</td>
-            <td>Realistic: standard losses from natural disturbances</td>
-          </tr>
-          <tr style="color: #ef4444">
-            <td>🔴 Pessimistic</td>
-            <td>40%</td>
-            <td>Worst case: high losses from combined stressors</td>
-          </tr>
-        </table>
+        <div class="table-responsive">
+          <table class="parameter-table">
+            <tr>
+              <th>Scenario</th>
+              <th>Risk Factor</th>
+              <th>Interpretation</th>
+            </tr>
+            <tr style="color: #22c55e">
+              <td>🟢 Optimistic</td>
+              <td>0%</td>
+              <td>
+                Best case: all planted forests survive and sequester at full
+                capacity
+              </td>
+            </tr>
+            <tr style="color: #f59e0b">
+              <td>🟡 Moderate</td>
+              <td>20%</td>
+              <td>Realistic: standard losses from natural disturbances</td>
+            </tr>
+            <tr style="color: #ef4444">
+              <td>🔴 Pessimistic</td>
+              <td>40%</td>
+              <td>Worst case: high losses from combined stressors</td>
+            </tr>
+          </table>
+        </div>
       </div>
 
       <!-- Section 5: Forest Degradation -->
@@ -522,47 +446,51 @@
           based on literature review and IPCC Tier 1 methodology guidance.
         </p>
 
-        <table class="parameter-table">
-          <tr>
-            <th>Parameter</th>
-            <th>Default Value</th>
-            <th>Uncertainty Range</th>
-            <th>Source of Uncertainty</th>
-          </tr>
-          <tr>
-            <td>Forest Sequestration Rate</td>
-            <td>6.9 tCO₂/ha/yr</td>
-            <td>±30% (4.8–9.0)</td>
-            <td>
-              Site-specific variation, climate, soil quality (IPCC 2006, Table
-              4.9)
-            </td>
-          </tr>
-          <tr>
-            <td>Coastal Sequestration Rate</td>
-            <td>6.6 tCO₂/ha/yr</td>
-            <td>±50% (3.3–9.9)</td>
-            <td>Mangrove type, sediment dynamics (Alongi, 2014)</td>
-          </tr>
-          <tr>
-            <td>Degradation Rate</td>
-            <td>2%/year</td>
-            <td>1–4%</td>
-            <td>Policy effectiveness, enforcement, fire risk (FAO, 2020)</td>
-          </tr>
-          <tr>
-            <td>Root-to-Shoot Ratio</td>
-            <td>0.37</td>
-            <td>0.20–0.50</td>
-            <td>Forest type, age, soil conditions (Mokany et al., 2006)</td>
-          </tr>
-          <tr>
-            <td>Emissions Target (2050)</td>
-            <td>540 MtCO₂e</td>
-            <td>±20%</td>
-            <td>Policy ambition, economic conditions (Indonesia NDC, 2022)</td>
-          </tr>
-        </table>
+        <div class="table-responsive">
+          <table class="parameter-table">
+            <tr>
+              <th>Parameter</th>
+              <th>Default Value</th>
+              <th>Uncertainty Range</th>
+              <th>Source of Uncertainty</th>
+            </tr>
+            <tr>
+              <td>Forest Sequestration Rate</td>
+              <td>6.9 tCO₂/ha/yr</td>
+              <td>±30% (4.8–9.0)</td>
+              <td>
+                Site-specific variation, climate, soil quality (IPCC 2006, Table
+                4.9)
+              </td>
+            </tr>
+            <tr>
+              <td>Coastal Sequestration Rate</td>
+              <td>6.6 tCO₂/ha/yr</td>
+              <td>±50% (3.3–9.9)</td>
+              <td>Mangrove type, sediment dynamics (Alongi, 2014)</td>
+            </tr>
+            <tr>
+              <td>Degradation Rate</td>
+              <td>2%/year</td>
+              <td>1–4%</td>
+              <td>Policy effectiveness, enforcement, fire risk (FAO, 2020)</td>
+            </tr>
+            <tr>
+              <td>Root-to-Shoot Ratio</td>
+              <td>0.37</td>
+              <td>0.20–0.50</td>
+              <td>Forest type, age, soil conditions (Mokany et al., 2006)</td>
+            </tr>
+            <tr>
+              <td>Emissions Target (2050)</td>
+              <td>540 MtCO₂e</td>
+              <td>±20%</td>
+              <td>
+                Policy ambition, economic conditions (Indonesia NDC, 2022)
+              </td>
+            </tr>
+          </table>
+        </div>
 
         <h3>Sensitivity Analysis Results</h3>
         <p>
@@ -572,44 +500,46 @@
           holding others constant.
         </p>
 
-        <table class="parameter-table">
-          <tr>
-            <th>Parameter Changed</th>
-            <th>-20% Change</th>
-            <th>+20% Change</th>
-            <th>Sensitivity Rating</th>
-          </tr>
-          <tr style="color: #ef4444">
-            <td>Sequestration Rate</td>
-            <td>+25% area needed</td>
-            <td>-17% area needed</td>
-            <td><strong>HIGH</strong></td>
-          </tr>
-          <tr style="color: #f59e0b">
-            <td>Degradation Rate</td>
-            <td>-8% area needed</td>
-            <td>+10% area needed</td>
-            <td><strong>MEDIUM</strong></td>
-          </tr>
-          <tr style="color: #ef4444">
-            <td>Target Emissions (2050)</td>
-            <td>+20% area needed</td>
-            <td>-20% area needed</td>
-            <td><strong>HIGH</strong></td>
-          </tr>
-          <tr style="color: #ef4444">
-            <td>Sequestration % of Reduction</td>
-            <td>-20% area needed</td>
-            <td>+20% area needed</td>
-            <td><strong>HIGH</strong></td>
-          </tr>
-          <tr style="color: #22c55e">
-            <td>Root-to-Shoot Ratio</td>
-            <td>+5% area needed</td>
-            <td>-5% area needed</td>
-            <td>LOW</td>
-          </tr>
-        </table>
+        <div class="table-responsive">
+          <table class="parameter-table">
+            <tr>
+              <th>Parameter Changed</th>
+              <th>-20% Change</th>
+              <th>+20% Change</th>
+              <th>Sensitivity Rating</th>
+            </tr>
+            <tr style="color: #ef4444">
+              <td>Sequestration Rate</td>
+              <td>+25% area needed</td>
+              <td>-17% area needed</td>
+              <td><strong>HIGH</strong></td>
+            </tr>
+            <tr style="color: #f59e0b">
+              <td>Degradation Rate</td>
+              <td>-8% area needed</td>
+              <td>+10% area needed</td>
+              <td><strong>MEDIUM</strong></td>
+            </tr>
+            <tr style="color: #ef4444">
+              <td>Target Emissions (2050)</td>
+              <td>+20% area needed</td>
+              <td>-20% area needed</td>
+              <td><strong>HIGH</strong></td>
+            </tr>
+            <tr style="color: #ef4444">
+              <td>Sequestration % of Reduction</td>
+              <td>-20% area needed</td>
+              <td>+20% area needed</td>
+              <td><strong>HIGH</strong></td>
+            </tr>
+            <tr style="color: #22c55e">
+              <td>Root-to-Shoot Ratio</td>
+              <td>+5% area needed</td>
+              <td>-5% area needed</td>
+              <td>LOW</td>
+            </tr>
+          </table>
+        </div>
 
         <div class="info-box">
           <strong>Key Finding:</strong> The sequestration rate, emissions

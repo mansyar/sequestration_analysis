@@ -425,15 +425,44 @@ def generate_all_chart_data(input_params: CalculatorInput) -> AllChartData:
         for i in range(len(years))
     ]
     
-    chart3 = CarbonBalanceChartData(
+    # Create temporary annual chart object for internal calculations
+    chart3_annual = CarbonBalanceChartData(
         years=years,
         gross_emissions=interpolated_emissions,
         existing_forest_sequestration=negated_existing,
         net_balance=net_balance
     )
+
+    # Calculate CUMULATIVE values for display in Figure 3
+    cumulative_gross_emissions = []
+    running_gross = 0
+    for val in interpolated_emissions:
+        running_gross += val
+        cumulative_gross_emissions.append(running_gross)
+
+    cumulative_existing_seq = []
+    running_existing = 0
+    for val in negated_existing:
+        running_existing += val
+        cumulative_existing_seq.append(running_existing)
+
+    cumulative_net_balance = []
+    running_net = 0
+    for val in net_balance:
+        running_net += val
+        cumulative_net_balance.append(running_net)
+    
+    # This is the chart object we will return (CUMULATIVE)
+    chart3_cumulative = CarbonBalanceChartData(
+        years=years,
+        gross_emissions=cumulative_gross_emissions,
+        existing_forest_sequestration=cumulative_existing_seq,
+        net_balance=cumulative_net_balance
+    )
     
     # ----- Chart 4: New Planting Requirements -----
-    chart4 = _generate_new_planting_chart_data(input_params, chart2, chart3)
+    # NOTE: We must pass the ANNUAL data (chart3_annual) because this function expects rates/year
+    chart4 = _generate_new_planting_chart_data(input_params, chart2, chart3_annual)
     
     # ----- Figure 6: Net Zero Balance -----
     # Combined balance = Gross Emissions - Existing Sinks - New Sinks
@@ -463,25 +492,47 @@ def generate_all_chart_data(input_params: CalculatorInput) -> AllChartData:
         em = emissions_by_year.get(y, emissions_by_year.get(input_params.target_year, 0))
         fig6_emissions.append(em)
 
-    final_net_balance = [
-        fig6_emissions[i] + fig6_existing_negated[i] + new_sinks_negated[i]
-        for i in range(len(chart4.years))
-    ]
+    # Calculate CUMULATIVE values for Figure 6
+    fig6_cumulative_emissions = []
+    running_fig6_gross = 0
+    for val in fig6_emissions:
+        running_fig6_gross += val
+        fig6_cumulative_emissions.append(running_fig6_gross)
+
+    fig6_cumulative_existing = []
+    running_fig6_existing = 0
+    for val in fig6_existing_negated:
+        running_fig6_existing += val
+        fig6_cumulative_existing.append(running_fig6_existing)
+
+    fig6_cumulative_new = []
+    running_fig6_new = 0
+    for val in new_sinks_negated:
+        running_fig6_new += val
+        fig6_cumulative_new.append(running_fig6_new)
+
+    fig6_cumulative_net_balance = []
+    running_fig6_net = 0
+    for i in range(len(chart4.years)):
+        # Net balance for year i
+        annual_val = fig6_emissions[i] + fig6_existing_negated[i] + new_sinks_negated[i]
+        running_fig6_net += annual_val
+        fig6_cumulative_net_balance.append(running_fig6_net)
     
-    chart6 = NetZeroBalanceChartData(
+    chart6_cumulative = NetZeroBalanceChartData(
         years=chart4.years,
-        gross_emissions=fig6_emissions,
-        existing_forest_sequestration=fig6_existing_negated,
-        new_planting_sequestration=new_sinks_negated,
-        net_balance=final_net_balance
+        gross_emissions=fig6_cumulative_emissions,
+        existing_forest_sequestration=fig6_cumulative_existing,
+        new_planting_sequestration=fig6_cumulative_new,
+        net_balance=fig6_cumulative_net_balance
     )
 
     return AllChartData(
         existing_forest_sequestration=chart1,
         gross_emissions=chart2,
-        carbon_balance=chart3,
+        carbon_balance=chart3_cumulative,
         new_planting=chart4,
-        net_zero_balance=chart6
+        net_zero_balance=chart6_cumulative
     )
     
 
